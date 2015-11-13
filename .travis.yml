@@ -9,11 +9,16 @@ cache:
 
 before_cache:
   - rm -rf $HOME/.m2/repository/org/keycloak
+  - rm -rf $HOME/.m2/repository/org/wildfly
 
-install: mvn install -Pdistribution -DskipTests=true -B -V
+install: mvn clean install -Pdistribution -DskipTests=true -B -V
 
 script:
   - mvn test -B
   - mvn -file testsuite/integration-arquillian test -B
+
+branches:
+  only:
+    - KEYCLOAK-2056-debug
 
 sudo: false
