@@ -22,6 +22,8 @@ import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.sssd.infopipe.InfoPipe;
 import org.freedesktop.sssd.infopipe.User;
 
+import java.util.MissingResourceException;
+
 import static org.freedesktop.sssd.infopipe.InfoPipe.OBJECTPATH;
 
 /**
@@ -39,21 +41,27 @@ public class Sssd {
         return SingletonHolder.INFOPIPE_OBJECT;
     }
 
+    public static void disconnect(){
+        SingletonHolder.DBUS_CONNECTION.disconnect();
+    }
+
     private Sssd() {
     }
 
     private static final class SingletonHolder {
         private static InfoPipe INFOPIPE_OBJECT;
         private static User USER_OBJECT;
-
+        private static DBusConnection DBUS_CONNECTION;
         static {
             try {
-                DBusConnection connection = DBusConnection.getConnection(DBusConnection.SYSTEM);
-                INFOPIPE_OBJECT = connection.getRemoteObject(BUSNAME, InfoPipe.OBJECTPATH, InfoPipe.class);
-                USER_OBJECT = connection.getRemoteObject(BUSNAME, User.OBJECTPATH, User.class);
+                DBUS_CONNECTION = DBusConnection.getConnection(DBusConnection.SYSTEM);
+                INFOPIPE_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, InfoPipe.OBJECTPATH, InfoPipe.class);
+                USER_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, User.OBJECTPATH, User.class);
             } catch (DBusException e) {
                 e.printStackTrace();
             }
         }
+
+
     }
 }
