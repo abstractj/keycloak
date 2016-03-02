@@ -33,7 +33,7 @@ import java.io.IOException;
  */
 public class UnixServerSocket
 {
-   static { System.loadLibrary("unix-java"); }
+   static { System.loadLibrary("unix_dbus_java"); }
    private native int native_bind(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
    private native int native_accept(int sock) throws IOException;
