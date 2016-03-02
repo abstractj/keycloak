@@ -37,7 +37,7 @@ import java.io.OutputStream;
  */
 public class UnixSocket
 {
-   static { System.loadLibrary("unix-java"); }
+   static { System.loadLibrary("unix_dbus_java"); }
    private native void native_set_pass_cred(int sock, boolean passcred) throws IOException;
    private native int native_connect(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
