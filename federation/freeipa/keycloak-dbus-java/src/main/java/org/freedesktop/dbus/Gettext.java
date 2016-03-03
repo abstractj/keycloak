@@ -24,7 +24,7 @@ public class Gettext
 {
    private static ResourceBundle myResources =
       ResourceBundle.getBundle("en_US");
-   public static String _(String s) {
+   public static String getString(String s) {
       return myResources.getString(s);
    }
 }
