@@ -30,7 +30,7 @@ public class MethodCall extends Message
       super(Message.Endian.BIG, Message.MessageType.METHOD_CALL, flags);
 
       if (null == member || null == path)
-         throw new MessageFormatException(getString("Must specify destination, path and function name to MethodCalls."));
+         throw new MessageFormatException(getString("missingDestinationPathFunction"));
       headers.put(Message.HeaderField.PATH,path);
       headers.put(Message.HeaderField.MEMBER,member);
 

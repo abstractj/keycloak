@@ -160,10 +160,10 @@ public class DBusConnection extends AbstractConnection
       public void handle(DBusSignal s)
       {
          if (s instanceof org.freedesktop.DBus.Local.Disconnected) {
-            if (Debug.debug) Debug.print(Debug.WARN, "Handling Disconnected signal from bus");
+            if (Debug.debug) Debug.print(Debug.WARN, "Handling disconnected signal from bus");
             try {
                Error err = new Error(
-                     "org.freedesktop.DBus.Local" , "org.freedesktop.DBus.Local.Disconnected", 0, "s", new Object[] { getString("Disconnected") });
+                     "org.freedesktop.DBus.Local" , "org.freedesktop.DBus.Local.disconnected", 0, "s", new Object[] { getString("disconnected") });
                if (null != pendingCalls) synchronized (pendingCalls) {
                   long[] set = pendingCalls.getKeys();
                   for (long l: set) if (-1 != l) {
@@ -241,16 +241,16 @@ public class DBusConnection extends AbstractConnection
                if (null == s) {
 						// address gets stashed in $HOME/.dbus/session-bus/`dbus-uuidgen --get`-`sed 's/:\(.\)\..*/\1/' <<< $DISPLAY`
 						String display = System.getenv("DISPLAY");
-						if (null == display) throw new DBusException(getString("Cannot Resolve Session Bus Address"));
+						if (null == display) throw new DBusException(getString("cannotResolveSessionBusAddress"));
 						File uuidfile = new File("/var/lib/dbus/machine-id");
-						if (!uuidfile.exists()) throw new DBusException(getString("Cannot Resolve Session Bus Address"));
+						if (!uuidfile.exists()) throw new DBusException(getString("cannotResolveSessionBusAddress"));
 						try {
 							BufferedReader r = new BufferedReader(new FileReader(uuidfile));
 							String uuid = r.readLine();
 							String homedir = System.getProperty("user.home");
 							File addressfile = new File(homedir + "/.dbus/session-bus",
 									uuid + "-" + display.replaceAll(":([0-9]*)\\..*", "$1"));
-							if (!addressfile.exists()) throw new DBusException(getString("Cannot Resolve Session Bus Address"));
+							if (!addressfile.exists()) throw new DBusException(getString("cannotResolveSessionBusAddress"));
 							r = new BufferedReader(new FileReader(addressfile));
 							String l;
 							while (null != (l = r.readLine())) {
@@ -260,16 +260,16 @@ public class DBusConnection extends AbstractConnection
 									if (Debug.debug) Debug.print(Debug.VERBOSE, "Parsing "+l+" to "+s);
 								}
 							}
-							if (null == s || "".equals(s)) throw new DBusException(getString("Cannot Resolve Session Bus Address"));
+							if (null == s || "".equals(s)) throw new DBusException(getString("cannotResolveSessionBusAddress"));
 							if (Debug.debug) Debug.print(Debug.INFO, "Read bus address "+s+" from file "+addressfile.toString());
 						} catch (Exception e) {
 							if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, e);
-							throw new DBusException(getString("Cannot Resolve Session Bus Address"));
+							throw new DBusException(getString("cannotResolveSessionBusAddress"));
 						}
 					}
                break;
             default:
-               throw new DBusException(getString("Invalid Bus Type: ")+bustype);
+               throw new DBusException(getString("invalidBusType")+bustype);
          }
          DBusConnection c = conn.get(s);
          if (Debug.debug) Debug.print(Debug.VERBOSE, "Getting bus connection for "+s+": "+c);
@@ -301,11 +301,11 @@ public class DBusConnection extends AbstractConnection
       } catch (IOException IOe) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, IOe);            
          disconnect();
-         throw new DBusException(getString("Failed to connect to bus ")+IOe.getMessage());
+         throw new DBusException(getString("connectionFailure")+IOe.getMessage());
       } catch (ParseException Pe) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, Pe);            
          disconnect();
-         throw new DBusException(getString("Failed to connect to bus ")+Pe.getMessage());
+         throw new DBusException(getString("connectionFailure")+Pe.getMessage());
       }
 
       // start listening for calls
@@ -361,7 +361,7 @@ public class DBusConnection extends AbstractConnection
             }
          }
 
-         if (ifcs.size() == 0) throw new DBusException(getString("Could not find an interface to cast to"));
+         if (ifcs.size() == 0) throw new DBusException(getString("interfaceToCastNotFound"));
 
          RemoteObject ro = new RemoteObject(source, path, null, false);
          DBusInterface newi = (DBusInterface) 
@@ -372,7 +372,7 @@ public class DBusConnection extends AbstractConnection
          return newi;
       } catch (Exception e) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, e);
-         throw new DBusException(MessageFormat.format(getString("Failed to create proxy object for {0} exported by {1}. Reason: {2}"), new Object[] { path, source, e.getMessage() }));
+         throw new DBusException(MessageFormat.format(getString("createProxyExportFailure"), new Object[] { path, source, e.getMessage() }));
       }
    }
    
@@ -387,7 +387,7 @@ public class DBusConnection extends AbstractConnection
          o = null;
       }
       if (null != o) return o.object.get();
-      if (null == source) throw new DBusException(getString("Not an object exported by this connection and no remote specified"));
+      if (null == source) throw new DBusException(getString("objectNotExportedNoRemoteSpecified"));
       return dynamicProxy(source, path);
    }
 
@@ -400,7 +400,7 @@ public class DBusConnection extends AbstractConnection
    public void releaseBusName(String busname) throws DBusException
    {
       if (!busname.matches(BUSNAME_REGEX)||busname.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name"));
+         throw new DBusException(getString("invalidBusName"));
       synchronized (this.busnames) {
          UInt32 rv;
          try { 
@@ -422,7 +422,7 @@ public class DBusConnection extends AbstractConnection
    public void requestBusName(String busname) throws DBusException
    {
       if (!busname.matches(BUSNAME_REGEX)||busname.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name"));
+         throw new DBusException(getString("invalidBusName"));
       synchronized (this.busnames) {
          UInt32 rv;
          try { 
@@ -435,8 +435,8 @@ public class DBusConnection extends AbstractConnection
          }
          switch (rv.intValue()) {
             case DBus.DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER: break;
-            case DBus.DBUS_REQUEST_NAME_REPLY_IN_QUEUE: throw new DBusException(getString("Failed to register bus name"));
-            case DBus.DBUS_REQUEST_NAME_REPLY_EXISTS: throw new DBusException(getString("Failed to register bus name"));
+            case DBus.DBUS_REQUEST_NAME_REPLY_IN_QUEUE: throw new DBusException(getString("dbusRegistrationFailure"));
+            case DBus.DBUS_REQUEST_NAME_REPLY_EXISTS: throw new DBusException(getString("dbusRegistrationFailure"));
             case DBus.DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER: break;
             default: break;
          }
@@ -486,11 +486,11 @@ public class DBusConnection extends AbstractConnection
    */
    public DBusInterface getPeerRemoteObject(String busname, String objectpath) throws DBusException
    {
-      if (null == busname) throw new DBusException(getString("Invalid bus name: null"));
+      if (null == busname) throw new DBusException(getString("nullBusName"));
       
       if ((!busname.matches(BUSNAME_REGEX) && !busname.matches(CONNID_REGEX))
             || busname.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid bus name: ")+busname);
+         throw new DBusException(getString("invalidBusName")+busname);
       
       String unique = _dbus.GetNameOwner(busname);
 
@@ -519,15 +519,15 @@ public class DBusConnection extends AbstractConnection
     */
    public DBusInterface getRemoteObject(String busname, String objectpath) throws DBusException
    {
-      if (null == busname) throw new DBusException(getString("Invalid bus name: null"));
-      if (null == objectpath) throw new DBusException(getString("Invalid object path: null"));
+      if (null == busname) throw new DBusException(getString("nullBusName"));
+      if (null == objectpath) throw new DBusException(getString("nullObjectPath"));
       
       if ((!busname.matches(BUSNAME_REGEX) && !busname.matches(CONNID_REGEX))
          || busname.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name: ")+busname);
+         throw new DBusException(getString("invalidBusName")+busname);
       
       if (!objectpath.matches(OBJECT_REGEX) || objectpath.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       
       return dynamicProxy(busname, objectpath);
    }
@@ -552,11 +552,11 @@ public class DBusConnection extends AbstractConnection
     */
    public <I extends DBusInterface> I getPeerRemoteObject(String busname, String objectpath, Class<I> type, boolean autostart) throws DBusException
    {
-      if (null == busname) throw new DBusException(getString("Invalid bus name: null"));
+      if (null == busname) throw new DBusException(getString("nullBusName"));
       
       if ((!busname.matches(BUSNAME_REGEX) && !busname.matches(CONNID_REGEX))
             || busname.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid bus name: ")+busname);
+         throw new DBusException(getString("invalidBusName")+busname);
       
       String unique = _dbus.GetNameOwner(busname);
 
@@ -601,23 +601,23 @@ public class DBusConnection extends AbstractConnection
    @SuppressWarnings("unchecked")
    public <I extends DBusInterface> I getRemoteObject(String busname, String objectpath, Class<I> type, boolean autostart) throws DBusException
    {
-      if (null == busname) throw new DBusException(getString("Invalid bus name: null"));
-      if (null == objectpath) throw new DBusException(getString("Invalid object path: null"));
-      if (null == type) throw new ClassCastException(getString("Not A DBus Interface"));
+      if (null == busname) throw new DBusException(getString("nullBusName"));
+      if (null == objectpath) throw new DBusException(getString("nullObjectPath"));
+      if (null == type) throw new ClassCastException(getString("notDBusInterface"));
       
       if ((!busname.matches(BUSNAME_REGEX) && !busname.matches(CONNID_REGEX))
          || busname.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name: ")+busname);
+         throw new DBusException(getString("invalidBusName")+busname);
       
       if (!objectpath.matches(OBJECT_REGEX) || objectpath.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       
-      if (!DBusInterface.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Interface"));
+      if (!DBusInterface.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusInterface"));
 
       // don't let people import things which don't have a
       // valid D-Bus interface name
       if (type.getName().equals(type.getSimpleName()))
-         throw new DBusException(getString("DBusInterfaces cannot be declared outside a package"));
+         throw new DBusException(getString("interfaceNotAllowedOutsidePackage"));
       
       RemoteObject ro = new RemoteObject(busname, objectpath, type, autostart);
       I i =  (I) Proxy.newProxyInstance(type.getClassLoader(), 
@@ -635,10 +635,10 @@ public class DBusConnection extends AbstractConnection
     */
    public <T extends DBusSignal> void removeSigHandler(Class<T> type, String source, DBusSigHandler<T> handler) throws DBusException
    {
-      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Signal"));
-      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("Cannot watch for signals based on well known bus name as source, only unique names."));
+      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusSignal"));
+      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("cannotWatchSignalsWellKnownBussName"));
       if (!source.matches(CONNID_REGEX)||source.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name: ")+source);
+         throw new DBusException(getString("invalidBusName")+source);
       removeSigHandler(new DBusMatchRule(type, source, null), handler);
    }
    /** 
@@ -652,13 +652,13 @@ public class DBusConnection extends AbstractConnection
     */
    public <T extends DBusSignal> void removeSigHandler(Class<T> type, String source, DBusInterface object,  DBusSigHandler<T> handler) throws DBusException
    {
-      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Signal"));
-      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("Cannot watch for signals based on well known bus name as source, only unique names."));
+      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusSignal"));
+      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("cannotWatchSignalsWellKnownBussName"));
       if (!source.matches(CONNID_REGEX)||source.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid bus name: ")+source);
+         throw new DBusException(getString("invalidBusName")+source);
       String objectpath = importedObjects.get(object).objectpath;
       if (!objectpath.matches(OBJECT_REGEX)||objectpath.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       removeSigHandler(new DBusMatchRule(type, source, objectpath), handler);
    }
    protected <T extends DBusSignal> void removeSigHandler(DBusMatchRule rule, DBusSigHandler<T> handler) throws DBusException
@@ -695,10 +695,10 @@ public class DBusConnection extends AbstractConnection
    @SuppressWarnings("unchecked")
    public <T extends DBusSignal> void addSigHandler(Class<T> type, String source, DBusSigHandler<T> handler) throws DBusException
    {
-      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Signal"));
-      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("Cannot watch for signals based on well known bus name as source, only unique names."));
+      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusSignal"));
+      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("cannotWatchSignalsWellKnownBussName"));
       if (!source.matches(CONNID_REGEX)||source.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid bus name: ")+source);
+         throw new DBusException(getString("invalidBusName")+source);
       addSigHandler(new DBusMatchRule(type, source, null), (DBusSigHandler<? extends DBusSignal>) handler);
    }
    /** 
@@ -714,13 +714,13 @@ public class DBusConnection extends AbstractConnection
    @SuppressWarnings("unchecked")
    public <T extends DBusSignal> void addSigHandler(Class<T> type, String source, DBusInterface object,  DBusSigHandler<T> handler) throws DBusException
    {
-      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Signal"));
-      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("Cannot watch for signals based on well known bus name as source, only unique names."));
+      if (!DBusSignal.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusSignal"));
+      if (source.matches(BUSNAME_REGEX)) throw new DBusException(getString("cannotWatchSignalsWellKnownBussName"));
       if (!source.matches(CONNID_REGEX)||source.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid bus name: ")+source);
+         throw new DBusException(getString("invalidBusName")+source);
       String objectpath = importedObjects.get(object).objectpath;
       if (!objectpath.matches(OBJECT_REGEX)||objectpath.length() > MAX_NAME_LENGTH)
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       addSigHandler(new DBusMatchRule(type, source, objectpath), (DBusSigHandler<? extends DBusSignal>) handler);
    }
    protected <T extends DBusSignal> void addSigHandler(DBusMatchRule rule, DBusSigHandler<T> handler) throws DBusException
@@ -756,7 +756,7 @@ public class DBusConnection extends AbstractConnection
                // Set all pending messages to have an error.
                try {
                   Error err = new Error(
-                        "org.freedesktop.DBus.Local" , "org.freedesktop.DBus.Local.Disconnected", 0, "s", new Object[] { getString("Disconnected") });
+                        "org.freedesktop.DBus.Local" , "org.freedesktop.DBus.Local.disconnected", 0, "s", new Object[] { getString("disconnected") });
                   synchronized (pendingCalls) {
                      long[] set = pendingCalls.getKeys();
                      for (long l: set) if (-1 != l) {

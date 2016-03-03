@@ -16,6 +16,6 @@ public class UnknownTypeCodeException extends DBusException implements NonFatalE
 {
    public UnknownTypeCodeException(byte code)
    {
-      super(getString("Not a valid D-Bus type code: ") + code);
+      super(getString("invalidDBusCode") + code);
    }
 }

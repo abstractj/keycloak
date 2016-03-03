@@ -36,6 +36,6 @@ public class test_p2p_client
       ((DBus.Peer) tri).Ping();
       System.out.println(((DBus.Introspectable) tri).Introspect());
       dc.disconnect();
-      System.out.println("Disconnected");
+      System.out.println("disconnected");
    }      
 }
