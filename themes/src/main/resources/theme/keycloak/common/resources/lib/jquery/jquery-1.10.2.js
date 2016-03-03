@@ -1704,7 +1704,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		var compare = b.compareDocumentPosition && a.compareDocumentPosition && a.compareDocumentPosition( b );
 
 		if ( compare ) {
-			// Disconnected nodes
+			// disconnected nodes
 			if ( compare & 1 ||
 				(!support.sortDetached && b.compareDocumentPosition( a ) === compare) ) {
 

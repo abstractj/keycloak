@@ -97,12 +97,12 @@ public class DBusAsyncReply<ReturnType>
       checkReply();
       if (null != rval) return rval;
       else if (null != error) throw error;
-      else throw new NoReply(getString("Async call has not had a reply"));
+      else throw new NoReply(getString("asyncCallNoReply"));
    }
 
    public String toString()
    {
-      return getString("Waiting for: ")+mc;
+      return getString("waitingFor")+mc;
    }
    Method getMethod() { return me; }
    AbstractConnection getConnection() { return conn; }

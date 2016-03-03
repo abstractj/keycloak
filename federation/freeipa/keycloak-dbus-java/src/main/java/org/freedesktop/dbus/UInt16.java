@@ -32,7 +32,7 @@ public class UInt16 extends Number implements Comparable<UInt16>
    public UInt16(int value)
    {
       if (value < MIN_VALUE || value > MAX_VALUE)
-         throw new NumberFormatException(MessageFormat.format(getString("{0} is not between {1} and {2}."), new Object[] { value, MIN_VALUE, MAX_VALUE}));
+         throw new NumberFormatException(MessageFormat.format(getString("isNotBetween"), new Object[] { value, MIN_VALUE, MAX_VALUE}));
       this.value = value;
    }
    /** Create a UInt16 from a String.

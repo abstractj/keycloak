@@ -46,10 +46,10 @@ public class DirectConnection extends AbstractConnection
 			connected = true;
       } catch (IOException IOe) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, IOe);            
-         throw new DBusException(getString("Failed to connect to bus ")+IOe.getMessage());
+         throw new DBusException(getString("connectionFailure")+IOe.getMessage());
       } catch (ParseException Pe) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, Pe);            
-         throw new DBusException(getString("Failed to connect to bus ")+Pe.getMessage());
+         throw new DBusException(getString("connectionFailure")+Pe.getMessage());
       }
 
       listen();
@@ -128,7 +128,7 @@ public class DirectConnection extends AbstractConnection
             }
          }
 
-         if (ifcs.size() == 0) throw new DBusException(getString("Could not find an interface to cast to"));
+         if (ifcs.size() == 0) throw new DBusException(getString("interfaceToCastNotFound"));
 
          RemoteObject ro = new RemoteObject(null, path, null, false);
          DBusInterface newi =  (DBusInterface)
@@ -139,7 +139,7 @@ public class DirectConnection extends AbstractConnection
          return newi;
       } catch (Exception e) {
          if (EXCEPTION_DEBUG && Debug.debug) Debug.print(Debug.ERR, e);
-         throw new DBusException(MessageFormat.format(getString("Failed to create proxy object for {0}; reason: {1}."), new Object[] { path, e.getMessage()}));
+         throw new DBusException(MessageFormat.format(getString("createProxyFailure"), new Object[] { path, e.getMessage()}));
       }
    }
    
@@ -177,10 +177,10 @@ public class DirectConnection extends AbstractConnection
     */
    public DBusInterface getRemoteObject(String objectpath) throws DBusException
    {
-      if (null == objectpath) throw new DBusException(getString("Invalid object path: null"));
+      if (null == objectpath) throw new DBusException(getString("nullObjectPath"));
       
       if (!objectpath.matches(OBJECT_REGEX) || objectpath.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       
       return dynamicProxy(objectpath);
    }
@@ -199,18 +199,18 @@ public class DirectConnection extends AbstractConnection
     */
    public DBusInterface getRemoteObject(String objectpath, Class<? extends DBusInterface> type) throws DBusException
    {
-      if (null == objectpath) throw new DBusException(getString("Invalid object path: null"));
-      if (null == type) throw new ClassCastException(getString("Not A DBus Interface"));
+      if (null == objectpath) throw new DBusException(getString("nullObjectPath"));
+      if (null == type) throw new ClassCastException(getString("notDBusInterface"));
       
       if (!objectpath.matches(OBJECT_REGEX) || objectpath.length() > MAX_NAME_LENGTH) 
-         throw new DBusException(getString("Invalid object path: ")+objectpath);
+         throw new DBusException(getString("invalidObjectPath")+objectpath);
       
-      if (!DBusInterface.class.isAssignableFrom(type)) throw new ClassCastException(getString("Not A DBus Interface"));
+      if (!DBusInterface.class.isAssignableFrom(type)) throw new ClassCastException(getString("notDBusInterface"));
 
       // don't let people import things which don't have a
       // valid D-Bus interface name
       if (type.getName().equals(type.getSimpleName()))
-         throw new DBusException(getString("DBusInterfaces cannot be declared outside a package"));
+         throw new DBusException(getString("interfaceNotAllowedOutsidePackage"));
       
       RemoteObject ro = new RemoteObject(null, objectpath, type, false);
       DBusInterface i =  (DBusInterface) Proxy.newProxyInstance(type.getClassLoader(), 

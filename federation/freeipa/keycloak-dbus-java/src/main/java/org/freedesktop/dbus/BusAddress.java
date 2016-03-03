@@ -21,10 +21,10 @@ public class BusAddress
    private Map<String,String> parameters;
    public BusAddress(String address) throws ParseException
    {
-      if (null == address || "".equals(address)) throw new ParseException(getString("Bus address is blank"), 0);
+      if (null == address || "".equals(address)) throw new ParseException(getString("busAddressBlank"), 0);
       if (Debug.debug) Debug.print(Debug.VERBOSE, "Parsing bus address: "+address);
       String[] ss = address.split(":", 2);
-      if (ss.length < 2) throw new ParseException(getString("Bus address is invalid: ")+address, 0);
+      if (ss.length < 2) throw new ParseException(getString("busAddressInvalid")+address, 0);
       type = ss[0];
       if (Debug.debug) Debug.print(Debug.VERBOSE, "Transport type: "+type);
       String[] ps = ss[1].split(",");

@@ -36,7 +36,7 @@ public class Error extends Message
       super(Message.Endian.BIG, Message.MessageType.ERROR, (byte) 0);
 
       if (null == errorName)
-         throw new MessageFormatException(getString("Must specify error name to Errors."));
+         throw new MessageFormatException(getString("missingErrorName"));
       headers.put(Message.HeaderField.REPLY_SERIAL,replyserial);
       headers.put(Message.HeaderField.ERROR_NAME,errorName);
       
@@ -80,7 +80,7 @@ public class Error extends Message
    @SuppressWarnings("unchecked")
    private static Class<? extends DBusExecutionException> createExceptionClass(String name)
    {
-      if (name == "org.freedesktop.DBus.Local.Disconnected") return NotConnected.class;
+      if (name == "org.freedesktop.DBus.Local.disconnected") return NotConnected.class;
       Class<? extends DBusExecutionException> c = null;
       do {
          try {

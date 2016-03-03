@@ -65,9 +65,9 @@ class ExportedObject
                // don't let people export things which don't have a
                // valid D-Bus interface name
                if (c.getName().equals(c.getSimpleName()))
-                  throw new DBusException(getString("DBusInterfaces cannot be declared outside a package"));
+                  throw new DBusException(getString("interfaceNotAllowedOutsidePackage"));
                if (c.getName().length() > DBusConnection.MAX_NAME_LENGTH) 
-                  throw new DBusException(getString("Introspected interface name exceeds 255 characters. Cannot export objects of type ")+c.getName());
+                  throw new DBusException(getString("introspectInterfaceExceedCharacters")+c.getName());
                else
                   introspectiondata += " <interface name=\""+AbstractConnection.dollar_pattern.matcher(c.getName()).replaceAll(".")+"\">\n";
             }
@@ -81,7 +81,7 @@ class ExportedObject
                   else
                      name = meth.getName();
                   if (name.length() > DBusConnection.MAX_NAME_LENGTH) 
-                     throw new DBusException(getString("Introspected method name exceeds 255 characters. Cannot export objects with method ")+name);
+                     throw new DBusException(getString("introspectMethodExceedCharacters")+name);
                   introspectiondata += "  <method name=\""+name+"\" >\n";
                   introspectiondata += getAnnotations(meth);
                   for (Class ex: meth.getExceptionTypes())
@@ -103,7 +103,7 @@ class ExportedObject
                               for (String s: Marshalling.getDBusType(t))
                                  introspectiondata += "   <arg type=\""+s+"\" direction=\"out\"/>\n";
                      } else if (Object[].class.equals(meth.getGenericReturnType())) {
-                        throw new DBusException(getString("Return type of Object[] cannot be introspected properly"));
+                        throw new DBusException(getString("cannotIntrospectReturnType"));
                      } else
                         for (String s: Marshalling.getDBusType(meth.getGenericReturnType()))
                         introspectiondata += "   <arg type=\""+s+"\" direction=\"out\"/>\n";
@@ -120,7 +120,7 @@ class ExportedObject
                   } else
                      name = sig.getSimpleName();
                   if (name.length() > DBusConnection.MAX_NAME_LENGTH) 
-                     throw new DBusException(getString("Introspected signal name exceeds 255 characters. Cannot export objects with signals of type ")+name);
+                     throw new DBusException(getString("introspectSignalExceedCharacters")+name);
                   introspectiondata += "  <signal name=\""+name+"\">\n";
                   Constructor con = sig.getConstructors()[0];
                   Type[] ts = con.getGenericParameterTypes();
