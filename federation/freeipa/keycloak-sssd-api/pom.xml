@@ -16,7 +16,6 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-dbus-java</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

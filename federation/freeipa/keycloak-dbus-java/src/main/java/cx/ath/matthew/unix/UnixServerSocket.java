@@ -26,6 +26,8 @@
  */
 package cx.ath.matthew.unix;
 
+import cx.ath.matthew.LibraryLoader;
+
 import java.io.IOException;
 
 /**
@@ -33,7 +35,7 @@ import java.io.IOException;
  */
 public class UnixServerSocket
 {
-   static { System.loadLibrary("unix_dbus_java"); }
+   static { LibraryLoader.load(); }
    private native int native_bind(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
    private native int native_accept(int sock) throws IOException;

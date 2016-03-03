@@ -27,6 +27,7 @@
 package cx.ath.matthew.unix;
 
 import cx.ath.matthew.debug.Debug;
+import cx.ath.matthew.LibraryLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ import java.io.OutputStream;
  */
 public class UnixSocket
 {
-   static { System.loadLibrary("unix_dbus_java"); }
+   static { LibraryLoader.load(); }
    private native void native_set_pass_cred(int sock, boolean passcred) throws IOException;
    private native int native_connect(String address, boolean abs) throws IOException;
    private native void native_close(int sock) throws IOException;
