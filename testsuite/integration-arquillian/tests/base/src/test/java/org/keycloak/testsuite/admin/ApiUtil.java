@@ -154,4 +154,27 @@ public class ApiUtil {
         return contains;
     }
 
+    public static RoleRepresentation addRole(String name) {
+        RoleRepresentation roleRepresentation = new RoleRepresentation();
+        roleRepresentation.setName(name);
+        return roleRepresentation;
+    }
+
+    public static void addRequiredAction(UserResource user, String actions){
+        if (user != null) {
+            UserRepresentation userRepresentation = user.toRepresentation();
+            userRepresentation.setRequiredActions(Arrays.asList(actions));
+            user.update(userRepresentation);
+        }
+    }
+
+    public static void assignUserRoles(UserResource user, String... roles) {
+
+        if (user != null) {
+            UserRepresentation userRepresentation = user.toRepresentation();
+            userRepresentation.setRealmRoles(Arrays.asList(roles));
+            user.update(userRepresentation);
+        }
+    }
+
 }
