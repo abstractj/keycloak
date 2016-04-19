@@ -68,6 +68,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -219,7 +220,6 @@ public class AccessTokenTest extends TestRealmKeycloakTest {
     }
 
     @Test
-    @Ignore
     public void accessTokenUserSessionExpired() {
         oauth.doLogin("test-user@localhost", "password");
 
@@ -342,7 +342,6 @@ public class AccessTokenTest extends TestRealmKeycloakTest {
     }
 
     @Test
-    @Ignore
     public void accessTokenCodeHasRequiredAction() {
 
         UserResource user = userUtil.getUserByUsername("test-user@localhost");
@@ -970,10 +969,10 @@ public class AccessTokenTest extends TestRealmKeycloakTest {
 
     // KEYCLOAK-1595 Assert that public client is able to retrieve token even if header "Authorization: Negotiate something" was used (parameter client_id has preference in this case)
     @Test
-    @Ignore
     public void testAuthorizationNegotiateHeaderIgnored() throws Exception {
 
-        ClientRepresentation clientRepresentation = KeycloakModelUtils.createClient(adminClient.realm("test").toRepresentation(), "sample-public-client");
+        RealmResource realm = adminClient.realm("test");
+        ClientRepresentation clientRepresentation = KeycloakModelUtils.createClient(realm, "sample-public-client");
         clientRepresentation.setRedirectUris(Arrays.asList(new String[]{"http://localhost:8081/app/auth"}));
         clientRepresentation.setEnabled(true);
         clientRepresentation.setPublicClient(true);

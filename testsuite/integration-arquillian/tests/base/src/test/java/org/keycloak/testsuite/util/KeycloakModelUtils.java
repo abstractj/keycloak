@@ -17,6 +17,7 @@
 
 package org.keycloak.testsuite.util;
 
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.representations.idm.ClientRepresentation;
@@ -44,6 +45,19 @@ public class KeycloakModelUtils {
 
         return app;
     }
+
+    public static ClientRepresentation createClient(RealmResource realm, String name) {
+        ClientRepresentation app = new ClientRepresentation();
+        app.setName(name);
+        app.setClientId(name);
+        realm.clients().create(app);
+        app.setClientAuthenticatorType(getDefaultClientAuthenticatorType());
+        generateSecret(app);
+        app.setFullScopeAllowed(true);
+
+        return app;
+    }
+
 
     public static CredentialRepresentation generateSecret(ClientRepresentation client) {
         UserCredentialModel secret = UserCredentialModel.generateSecret();
