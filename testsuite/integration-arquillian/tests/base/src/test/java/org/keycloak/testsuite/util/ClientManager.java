@@ -96,5 +96,11 @@ public class ClientManager {
         public void removeScopeMapping(RoleRepresentation newRole) {
             clientResource.getScopeMappings().realmLevel().remove(Collections.singletonList(newRole));
         }
+
+        public void addRoles(RoleRepresentation... roles) {
+            for (RoleRepresentation role : roles) {
+                clientResource.roles().create(role);
+            }
+        }
     }
 }
