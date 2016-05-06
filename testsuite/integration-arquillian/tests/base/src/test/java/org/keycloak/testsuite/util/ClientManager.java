@@ -79,12 +79,7 @@ public class ClientManager {
         }
 
         public ClientManagerBuilder addProtocolMapper(ProtocolMapperRepresentation protocolMapper) {
-            ClientRepresentation app = clientResource.toRepresentation();
-            if (app.getProtocolMappers() == null)
-                app.setProtocolMappers(new LinkedList<ProtocolMapperRepresentation>());
-
-            app.getProtocolMappers().add(protocolMapper);
-            clientResource.update(app);
+            clientResource.getProtocolMappers().createMapper(protocolMapper);
             return this;
         }
 
