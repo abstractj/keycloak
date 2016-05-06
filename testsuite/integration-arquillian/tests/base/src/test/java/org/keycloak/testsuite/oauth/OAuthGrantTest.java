@@ -22,12 +22,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.common.constants.KerberosConstants;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventType;
-import org.keycloak.models.ClientModel;
-import org.keycloak.models.RoleModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.EventRepresentation;
@@ -47,8 +44,6 @@ import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.UserManager;
 import org.openqa.selenium.By;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -206,9 +201,11 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
         // Grant permissions on grant screen
         oauth.clientId("third-party");
         oauth.doLoginGrant("test-user@localhost", "password");
+        oauth.scope(OAuth2Constants.GRANT_TYPE);
 
         // Add new protocolMapper and role before showing grant page
-        ProtocolMapperRepresentation protocolMapper = ProtocolMapperUtil.createClaimMapper(KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME,
+        ProtocolMapperRepresentation protocolMapper = ProtocolMapperUtil.createClaimMapper(
+                KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME,
                 KerberosConstants.GSS_DELEGATION_CREDENTIAL,
                 KerberosConstants.GSS_DELEGATION_CREDENTIAL, "String",
                 true, KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME,
@@ -226,7 +223,7 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
         UserManager.realm(appRealm).username("test-user@localhost").assignRoles(newRole.getName());
 
         // Confirm grant page
-        /*grantPage.assertCurrent();
+        grantPage.assertCurrent();
         grantPage.accept();
         events.expectLogin()
                 .client("third-party")
@@ -242,7 +239,8 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
         // Show grant page another time. Just new role and protocol mapper are on the page
         oauth.openLoginForm();
         grantPage.assertCurrent();
-        Assert.assertFalse(driver.getPageSource().contains(ROLE_USER));
+
+        /*Assert.assertFalse(driver.getPageSource().contains(ROLE_USER));
         Assert.assertFalse(driver.getPageSource().contains("Full name"));
         Assert.assertTrue(driver.getPageSource().contains("new-role"));
         Assert.assertTrue(driver.getPageSource().contains(KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME));
@@ -264,7 +262,7 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
                 .client("account").detail(Details.REVOKED_CLIENT, "third-party").assertEvent();
 
         // Cleanup
-        keycloakRule.update(new KeycloakRule.KeycloakSetup() {
+        /*keycloakRule.update(new KeycloakRule.KeycloakSetup() {
 
             @Override
             public void config(RealmManager manager, RealmModel adminstrationRealm, RealmModel appRealm) {
