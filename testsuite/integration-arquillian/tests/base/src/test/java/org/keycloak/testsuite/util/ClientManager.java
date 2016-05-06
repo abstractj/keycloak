@@ -84,7 +84,8 @@ public class ClientManager {
         }
 
         public void addScopeMapping(RoleRepresentation newRole) {
-            clientResource.getScopeMappings().getAll().getRealmMappings().add(newRole);
+            clientResource.getScopeMappings().realmLevel().add(Collections.singletonList(newRole));
+            clientResource.roles().list();
         }
     }
 }

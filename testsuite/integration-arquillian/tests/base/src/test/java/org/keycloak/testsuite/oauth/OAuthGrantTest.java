@@ -21,7 +21,10 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.common.constants.KerberosConstants;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventType;
@@ -31,6 +34,7 @@ import org.keycloak.representations.idm.EventRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.AssertEvents;
 import org.keycloak.testsuite.admin.ApiUtil;
@@ -44,6 +48,7 @@ import org.keycloak.testsuite.util.RoleBuilder;
 import org.keycloak.testsuite.util.UserManager;
 import org.openqa.selenium.By;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -213,14 +218,21 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
 
 
         RealmResource appRealm = adminClient.realm("test");
-        RoleRepresentation newRole = RoleBuilder.create().name("new-role").build();
-        appRealm.roles().create(newRole);
+        appRealm.roles().create(RoleBuilder.create().name("new-role").build());
+        RoleRepresentation newRole = appRealm.roles().get("new-role").toRepresentation();
+
+        ClientResource clientResource = ApiUtil.findClientByClientId(appRealm, "third-party");
+        appRealm.clients().get(clientResource.toRepresentation().getId()).roles().create(newRole);
+        appRealm.clients().get(clientResource.toRepresentation().getId()).roles().list();
 
         ClientManager.realm(adminClient.realm("test")).clientId("third-party")
                 .addProtocolMapper(protocolMapper)
                 .addScopeMapping(newRole);
 
-        UserManager.realm(appRealm).username("test-user@localhost").assignRoles(newRole.getName());
+        UserRepresentation userResource = ApiUtil.findUserByUsername(appRealm, "test-user@localhost");
+
+        appRealm.users().get(userResource.getId()).roles().realmLevel().add(Collections.singletonList(newRole));
+//        UserManager.realm(appRealm).username("test-user@localhost").assignRoles(newRole.getName());
 
         // Confirm grant page
         grantPage.assertCurrent();
@@ -240,7 +252,7 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
         oauth.openLoginForm();
         grantPage.assertCurrent();
 
-        /*Assert.assertFalse(driver.getPageSource().contains(ROLE_USER));
+        Assert.assertFalse(driver.getPageSource().contains(ROLE_USER));
         Assert.assertFalse(driver.getPageSource().contains("Full name"));
         Assert.assertTrue(driver.getPageSource().contains("new-role"));
         Assert.assertTrue(driver.getPageSource().contains(KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME));
