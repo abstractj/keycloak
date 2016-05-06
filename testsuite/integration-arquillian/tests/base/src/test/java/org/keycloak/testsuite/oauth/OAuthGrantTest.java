@@ -21,10 +21,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.RoleResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.common.constants.KerberosConstants;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventType;
@@ -45,7 +42,6 @@ import org.keycloak.testsuite.util.ClientManager;
 import org.keycloak.testsuite.util.OAuthClient;
 import org.keycloak.testsuite.util.ProtocolMapperUtil;
 import org.keycloak.testsuite.util.RoleBuilder;
-import org.keycloak.testsuite.util.UserManager;
 import org.openqa.selenium.By;
 
 import java.util.Collections;
@@ -221,18 +217,12 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
         appRealm.roles().create(RoleBuilder.create().name("new-role").build());
         RoleRepresentation newRole = appRealm.roles().get("new-role").toRepresentation();
 
-        ClientResource clientResource = ApiUtil.findClientByClientId(appRealm, "third-party");
-        appRealm.clients().get(clientResource.toRepresentation().getId()).roles().create(newRole);
-        appRealm.clients().get(clientResource.toRepresentation().getId()).roles().list();
-
         ClientManager.realm(adminClient.realm("test")).clientId("third-party")
                 .addProtocolMapper(protocolMapper)
                 .addScopeMapping(newRole);
 
         UserRepresentation userResource = ApiUtil.findUserByUsername(appRealm, "test-user@localhost");
-
         appRealm.users().get(userResource.getId()).roles().realmLevel().add(Collections.singletonList(newRole));
-//        UserManager.realm(appRealm).username("test-user@localhost").assignRoles(newRole.getName());
 
         // Confirm grant page
         grantPage.assertCurrent();
@@ -274,19 +264,12 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
                 .client("account").detail(Details.REVOKED_CLIENT, "third-party").assertEvent();
 
         // Cleanup
-        /*keycloakRule.update(new KeycloakRule.KeycloakSetup() {
+        ClientManager.realm(adminClient.realm("test")).clientId("third-party")
+                .removeProtocolMapper(KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME)
+                .removeScopeMapping(newRole);
 
-            @Override
-            public void config(RealmManager manager, RealmModel adminstrationRealm, RealmModel appRealm) {
-                ClientModel thirdPartyApp = appRealm.getClientByClientId("third-party");
-                ProtocolMapperModel gssMapper = thirdPartyApp.getProtocolMapperByName(OIDCLoginProtocol.LOGIN_PROTOCOL, KerberosConstants.GSS_DELEGATION_CREDENTIAL_DISPLAY_NAME);
-                thirdPartyApp.removeProtocolMapper(gssMapper);
+        appRealm.roles().deleteRole("new-role");
 
-                RoleModel newRole = appRealm.getRole("new-role");
-                appRealm.removeRole(newRole);
-            }
-
-        });*/
     }
 
     /*@Test

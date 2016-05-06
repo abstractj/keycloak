@@ -8,9 +8,9 @@ import org.keycloak.representations.idm.RoleRepresentation;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 
 import static org.keycloak.testsuite.admin.ApiUtil.findClientByClientId;
+import static org.keycloak.testsuite.admin.ApiUtil.findProtocolMapperByName;
 
 /**
  * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>.
@@ -85,7 +85,16 @@ public class ClientManager {
 
         public void addScopeMapping(RoleRepresentation newRole) {
             clientResource.getScopeMappings().realmLevel().add(Collections.singletonList(newRole));
-            clientResource.roles().list();
+        }
+
+        public ClientManagerBuilder removeProtocolMapper(String protocolMapperName) {
+            ProtocolMapperRepresentation rep = findProtocolMapperByName(clientResource, protocolMapperName);
+            clientResource.getProtocolMappers().delete(rep.getId());
+            return this;
+        }
+
+        public void removeScopeMapping(RoleRepresentation newRole) {
+            clientResource.getScopeMappings().realmLevel().remove(Collections.singletonList(newRole));
         }
     }
 }
