@@ -23,16 +23,19 @@ import org.junit.Test;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.resource.ClientResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleMappingResource;
 import org.keycloak.common.constants.KerberosConstants;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventType;
+import org.keycloak.models.AdminRoles;
+import org.keycloak.models.ImpersonationConstants;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.EventRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.RolesRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.AssertEvents;
@@ -44,9 +47,9 @@ import org.keycloak.testsuite.util.ClientManager;
 import org.keycloak.testsuite.util.OAuthClient;
 import org.keycloak.testsuite.util.ProtocolMapperUtil;
 import org.keycloak.testsuite.util.RoleBuilder;
+import org.keycloak.testsuite.util.UserManager;
 import org.openqa.selenium.By;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -55,6 +58,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.keycloak.testsuite.admin.AbstractAdminTest.loadJson;
+import static org.keycloak.testsuite.admin.ApiUtil.findClientByClientId;
 
 /**
  * @author <a href="mailto:vrockai@redhat.com">Viliam Rockai</a>
@@ -284,19 +288,28 @@ public class OAuthGrantTest extends AbstractKeycloakTest {
 
         RealmResource appRealm = adminClient.realm(REALM_NAME);
 
-        appRealm.roles().create(RoleBuilder.create().name("bar-role").scopeParamRequired(true).build());
-        appRealm.roles().create(RoleBuilder.create().name("foo-role").scopeParamRequired(true).build());
+        ClientResource thirdParty = findClientByClientId(appRealm, THIRD_PARTY_APP);
+        thirdParty.roles().create(RoleBuilder.create().id("bar-role").name("bar-role").scopeParamRequired(true).build());
+        RoleRepresentation barAppRole = thirdParty.roles().get("bar-role").toRepresentation();
 
-        RoleRepresentation barAppRole = appRealm.roles().get("bar-role").toRepresentation();
+        appRealm.roles().create(RoleBuilder.create().id("foo-role").name("foo-role").scopeParamRequired(true).build());
         RoleRepresentation fooRole = appRealm.roles().get("foo-role").toRepresentation();
-
-        ClientManager.ClientManagerBuilder clientManager = ClientManager.realm(appRealm).clientId(THIRD_PARTY_APP);
-        clientManager.addScopeMapping(fooRole);
+        ClientManager.realm(appRealm).clientId(THIRD_PARTY_APP).addScopeMapping(fooRole);
 
         UserRepresentation testUser = ApiUtil.findUserByUsername(appRealm, "test-user@localhost");
-        appRealm.users().get(testUser.getId()).roles().realmLevel().add(Arrays.asList(fooRole, barAppRole));
+        /*appRealm.users().get(testUser.getId()).roles().realmLevel().add(Arrays.asList(fooRole, barAppRole));
+        appRealm.users().get(testUser.getId()).roles().clientLevel(THIRD_PARTY_APP).add(Collections.singletonList(barAppRole));*/
 
-        appRealm.users().get(testUser.getId()).roles().getAll();
+        ClientResource testRealmClient = ApiUtil.findClientResourceByClientId(appRealm, THIRD_PARTY_APP);
+        List<RoleRepresentation> roles = new LinkedList<>();
+        roles.add(ApiUtil.findClientRoleByName(testRealmClient, "bar-role").toRepresentation());
+
+        appRealm.users().get(testUser.getId()).roles().clientLevel(testRealmClient.toRepresentation().getId()).add(roles);
+        appRealm.users().get(testUser.getId()).roles().realmLevel().add(Collections.singletonList(fooRole));
+
+        appRealm.users().get(testUser.getId()).roles().getAll().getClientMappings();
+        appRealm.users().get(testUser.getId()).roles().getAll().getRealmMappings();
+
 
 
 
