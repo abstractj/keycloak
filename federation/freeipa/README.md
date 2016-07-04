@@ -18,15 +18,15 @@ In order to install it, follow these steps:
 1. Download the package
 
   ```
-  $ wget -c https://github.com/abstractj/libunix-dbus-java/releases/download/libunix-dbus-java-0.8.0/libunix-dbus-java-0.8.0-1.fc23.x86_64.rpm
+  $ wget -c https://github.com/abstractj/libunix-dbus-java/releases/download/libunix-dbus-java-0.8.0/libunix-dbus-java-0.8.0-1.fc24.x86_64.rpm
   ```
 
 2. Check the signature
 
   ```
-  $ rpm -K libunix-dbus-java-0.8.0-1.fc23.x86_64.rpm
+  $ rpm -K libunix-dbus-java-0.8.0-1.fc24.x86_64.rpm
 
-  libunix-dbus-java-0.8.0-1.fc23.x86_64.rpm:
+  libunix-dbus-java-0.8.0-1.fc24.x86_64.rpm:
       Header V4 RSA/SHA256 Signature, key ID 84dc9914: OK
       Header SHA1 digest: OK (d17bb7ebaa7a5304c1856ee4357c8ba4ec9c0b89)
       V4 RSA/SHA256 Signature, key ID 84dc9914: OK
@@ -36,7 +36,7 @@ In order to install it, follow these steps:
 3. Install the package
 
   ```
-  dnf install libunix-dbus-java-0.8.0-1.fc23.x86_64.rpm
+  dnf install libunix-dbus-java-0.8.0-1.fc24.x86_64.rpm
   ```
 
 ### FreeIPA installation
