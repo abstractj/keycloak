@@ -18,25 +18,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <artifactId>keycloak-examples-parent</artifactId>
+        <artifactId>keycloak-parent</artifactId>
         <groupId>org.keycloak</groupId>
         <version>2.0.0.Final</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>Provider Examples</name>
+    <name>Keycloak FreeIPA integration</name>
     <description/>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>keycloak-examples-providers-parent</artifactId>
+    <artifactId>keycloak-freeipa-parent</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>event-listener-sysout</module>
-        <module>event-store-mem</module>
-        <module>federation-provider</module>
-        <module>authenticator</module>
-        <module>rest</module>
-        <module>domain-extension</module>
-        <module>sssd-federation-provider</module>
+        <module>keycloak-dbus-java</module>
+        <module>keycloak-sssd-api</module>
     </modules>
 </project>
