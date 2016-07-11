@@ -679,6 +679,27 @@
                 <artifactId>keycloak-kerberos-federation</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- Dependencies for RHEL IdM -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-dbus-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-sssd-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-sssd-federation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-libpam4j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-ldap-federation</artifactId>
