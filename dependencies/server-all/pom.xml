@@ -63,6 +63,14 @@
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-dbus-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-sssd-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
             <artifactId>keycloak-model-jpa</artifactId>
         </dependency>
         <dependency>
@@ -83,6 +91,17 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-kerberos-federation</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-sssd-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-dbus-java</artifactId>
+        </dependency>
+
 
         <!-- saml -->
         <dependency>

@@ -1,7 +1,10 @@
-package org.keycloak.org.keycloak.examples.federation.sssd;
+package org.keycloak.examples.federation.sssd;
 
 import org.freedesktop.dbus.Variant;
 import org.freedesktop.sssd.infopipe.InfoPipe;
+import org.jvnet.libpam.PAM;
+import org.jvnet.libpam.PAMException;
+import org.jvnet.libpam.UnixUser;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -21,19 +24,19 @@ import java.util.logging.Logger;
  */
 public class SSSDFederationProvider implements UserFederationProvider {
 
-    private final KeycloakSession session;
-    private final UserFederationProviderModel model;
+    private static final String PAM_SERVICE = "keycloak";
+    private static final Logger LOGGER = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
     protected static final Set<String> supportedCredentialTypes = new HashSet<String>();
 
-    private static final Logger LOGGER = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
+    private final KeycloakSession session;
+    private final UserFederationProviderModel model;
 
-    public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model) {
+    public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model, SSSDFederationProviderFactory sssdFederationProviderFactory) {
         this.session = session;
         this.model = model;
     }
 
-    static
-    {
+    static {
         supportedCredentialTypes.add(UserCredentialModel.PASSWORD);
     }
 
@@ -67,9 +70,13 @@ public class SSSDFederationProvider implements UserFederationProvider {
         return false;
     }
 
-    //TODO Bad implemented for testing
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
+
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
         if (userExists(username)) {
             UserModel userModel = session.userStorage().addUser(realm, username);
             userModel.setEnabled(true);
@@ -82,7 +89,11 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     private boolean userExists(String username) {
 
-        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber","mail"};
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
+        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
         InfoPipe infoPipe = Sssd.infopipe();
         Map<String, Variant> attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
 
@@ -91,7 +102,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
         List<String> groups = infoPipe.getUserGroups("john");
         LOGGER.info("" + groups);
 
-        if(attributes != null) {
+        if (attributes != null) {
             return true;
         }
 
@@ -135,11 +146,14 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     }
 
-    //TODO working on it
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
 
-        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber","mail"};
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
+        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
         InfoPipe infoPipe = Sssd.infopipe();
         Map<String, Variant> attributes = infoPipe.getUserAttributes(local.getUsername(), Arrays.asList(attr));
 
@@ -156,20 +170,59 @@ public class SSSDFederationProvider implements UserFederationProvider {
         return null;
     }
 
-    //TODO implement
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, List<UserCredentialModel> input) {
+
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
+        for (UserCredentialModel cred : input) {
+            if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
+                UnixUser u = null;
+                try {
+                    u = new PAM(PAM_SERVICE).authenticate(user.getUsername(), cred.getValue());
+                } catch (PAMException e) {
+                    e.printStackTrace();
+                }
+
+                if (u == null) return false;
+                return true;
+            } else {
+                return false;
+            }
+        }
         return false;
     }
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, UserCredentialModel... input) {
+
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
+        for (UserCredentialModel cred : input) {
+            if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
+                UnixUser u = null;
+                try {
+                    u = new PAM(PAM_SERVICE).authenticate(user.getUsername(), cred.getValue());
+                } catch (PAMException e) {
+                    e.printStackTrace();
+                }
+
+                if (u == null) return false;
+                return true;
+            } else {
+                return false;
+            }
+        }
         return false;
     }
 
     @Override
-    public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel credential) {
-        return null;
+    public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel cred) {
+        return CredentialValidationOutput.failed();
     }
 
     @Override

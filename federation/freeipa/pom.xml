@@ -28,7 +28,7 @@
     <description/>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>keycloak-freeipa-parent</artifactId>
+    <artifactId>keycloak-freeipa-federation</artifactId>
     <packaging>pom</packaging>
 
     <modules>
