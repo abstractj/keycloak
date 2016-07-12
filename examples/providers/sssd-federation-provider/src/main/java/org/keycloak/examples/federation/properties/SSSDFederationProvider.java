@@ -23,6 +23,7 @@ import org.jboss.logging.Logger;
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
 import org.jvnet.libpam.UnixUser;
+import org.keycloak.common.constants.KerberosConstants;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -32,10 +33,12 @@ import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserFederationProvider;
 import org.keycloak.models.UserFederationProviderModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.managers.UserManager;
 import org.keycloak.sssd.Sssd;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +51,7 @@ import java.util.Set;
 public class SSSDFederationProvider implements UserFederationProvider {
 
     private static final String PAM_SERVICE = "keycloak";
-    private static final Logger LOGGER = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
+    private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
 
     protected static final Set<String> supportedCredentialTypes = new HashSet<String>();
     protected KeycloakSession session;
@@ -59,54 +62,75 @@ public class SSSDFederationProvider implements UserFederationProvider {
         this.model = model;
     }
 
-    static
-    {
+    static {
         supportedCredentialTypes.add(UserCredentialModel.PASSWORD);
     }
 
 
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
-        LOGGER.info("================================================================");
-        LOGGER.info("getUserByUsername");
-        LOGGER.info("================================================================");
-
-        if (userExists(username)) {
-            UserModel userModel = session.userStorage().addUser(realm, username);
-            userModel.setEnabled(true);
-            userModel.setFederationLink(model.getId());
-            return userModel;
-        }
-
-        return null;
+        return findOrCreateAuthenticatedUser(realm, username);
     }
 
-    private boolean userExists(String username) {
+    /**
+     * Called after successful authentication
+     *
+     * @param realm realm
+     * @param username username without realm prefix
+     * @return user if found or successfully created. Null if user with same username already exists, but is not linked to this provider
+     */
+    protected UserModel findOrCreateAuthenticatedUser(RealmModel realm, String username) {
+        UserModel user = session.userStorage().getUserByUsername(username, realm);
+        if (user != null) {
+            logger.debug("SSSD authenticated user " + username + " found in Keycloak storage");
 
-        LOGGER.info("================================================================");
-        LOGGER.info("userExists");
-        LOGGER.info("================================================================");
+            if (!model.getId().equals(user.getFederationLink())) {
+                logger.warn("User with username " + username + " already exists, but is not linked to provider [" + model.getDisplayName() + "]");
+                return null;
+            } else {
+                UserModel proxied = validateAndProxy(realm, user);
+                if (proxied != null) {
+                    return proxied;
+                } else {
+                    logger.warn("User with username " + username + " already exists and is linked to provider [" + model.getDisplayName() +
+                            "] but principal is not correct.");
+                    logger.warn("Will re-create user");
+                    new UserManager(session).removeUser(realm, user, session.userStorage());
+                }
+            }
+        }
 
+        logger.debug("SSSD authenticated user " + username + " not in Keycloak storage. Creating...");
+        return importUserToKeycloak(realm, username);
+    }
+
+    protected UserModel importUserToKeycloak(RealmModel realm, String username) {
+        Map<String, Variant> sssdUser = loadSSSDUserByUsername(username);
+        logger.debugf("Creating SSSD user: %s to local Keycloak storage", username);
+        UserModel user = session.userStorage().addUser(realm, username);
+        user.setEnabled(true);
+        user.setEmail(sssdUser.get("mail").getValue().toString());
+        user.setFirstName(sssdUser.get("givenname").getValue().toString());
+        user.setLastName(sssdUser.get("sn").getValue().toString());
+        user.setFederationLink(model.getId());
+
+        return validateAndProxy(realm, user);
+    }
+
+    private Map<String, Variant> loadSSSDUserByUsername(String username) {
         String[] attr = {"mail", "givenname", "sn", "telephoneNumber"};
+        Map<String, Variant> attributes = null;
         try {
             InfoPipe infoPipe = Sssd.infopipe();
-            Map<String, Variant> attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
-
-            LOGGER.info("" + attributes);
-
-            List<String> groups = infoPipe.getUserGroups(username);
-            LOGGER.info("" + groups);
-
-            if (attributes != null) {
-                return true;
-            }
+            attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            Sssd.disconnect();
+            //TODO cannot disconnect while still returning parameters
+//            Sssd.disconnect();
         }
 
-        return false;
+        return attributes;
     }
 
 
@@ -115,15 +139,6 @@ public class SSSDFederationProvider implements UserFederationProvider {
         return null;
     }
 
-    /**
-     * We only search for Usernames as that is all that is stored in the properties file.  Not that if the user
-     * does exist in the properties file, we only import it if the user hasn't been imported already.
-     *
-     * @param attributes
-     * @param realm
-     * @param maxResults
-     * @return
-     */
     @Override
     public List<UserModel> searchByAttributes(Map<String, String> attributes, RealmModel realm, int maxResults) {
         return Collections.emptyList();
@@ -136,7 +151,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public void preRemove(RealmModel realm) {
-       // complete  We don't care about the realm being removed
+        // complete  We don't care about the realm being removed
     }
 
     @Override
@@ -151,39 +166,18 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     }
 
-    /**
-     * See if the user is still in the properties file
-     *
-     * @param local
-     * @return
-     */
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
-        LOGGER.info("================================================================");
-        LOGGER.info("isValid");
-        LOGGER.info("================================================================");
 
-        String[] attr = {"mail", "givenname", "sn", "telephoneNumber"};
-        InfoPipe infoPipe = Sssd.infopipe();
-        Map<String, Variant> attributes = infoPipe.getUserAttributes(local.getUsername(), Arrays.asList(attr));
-
-        LOGGER.info("" + attributes);
-
-        LOGGER.info("" + attributes.keySet());
+        Map<String, Variant> attributes = loadSSSDUserByUsername(local.getUsername());
 
         //TODO remove this dirty thing
-        if(attributes != null)
+        if (attributes != null)
             return true;
 
         return attributes.containsKey(local.getEmail());
     }
 
-    /**
-     * hardcoded to only return PASSWORD
-     *
-     * @param user
-     * @return
-     */
     @Override
     public Set<String> getSupportedCredentialTypes(UserModel user) {
         return supportedCredentialTypes;
@@ -196,58 +190,35 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, List<UserCredentialModel> input) {
-        LOGGER.info("================================================================");
-        LOGGER.info("validCredentials1");
-        LOGGER.info("================================================================");
-
         for (UserCredentialModel cred : input) {
             if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-                UnixUser u = null;
-                try {
-                    u = new PAM(PAM_SERVICE).authenticate(user.getUsername(), cred.getValue());
-                } catch (PAMException e) {
-                    e.printStackTrace();
-                }
-
-                if (u == null) return false;
-                return true;
-            } else {
-                return false;
+                return (authenticate(user.getUsername(), cred.getValue()) != null);
             }
         }
         return false;
+    }
+
+    private UnixUser authenticate(String username, String password) {
+        PAM pam = null;
+        UnixUser user = null;
+        try {
+            pam = new PAM(PAM_SERVICE);
+            user = pam.authenticate(username, password);
+        } catch (PAMException e) {
+            logger.error("Authentication failed", e);
+        } finally {
+            pam.dispose();
+        }
+        return user;
     }
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, UserCredentialModel... input) {
-        LOGGER.info("================================================================");
-        LOGGER.info("validCredentials2");
-        LOGGER.info("================================================================");
-
-        for (UserCredentialModel cred : input) {
-            if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-                UnixUser u = null;
-                try {
-                    u = new PAM(PAM_SERVICE).authenticate(user.getUsername(), cred.getValue());
-                } catch (PAMException e) {
-                    e.printStackTrace();
-                }
-
-                if (u == null) return false;
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
+        return validCredentials(realm, user, Arrays.asList(input));
     }
 
     @Override
     public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel credential) {
-        LOGGER.info("================================================================");
-        LOGGER.info("validCredentials3");
-        LOGGER.info("================================================================");
-
         return CredentialValidationOutput.failed();
     }
 
@@ -287,14 +258,9 @@ public class SSSDFederationProvider implements UserFederationProvider {
         throw new IllegalStateException("Registration not supported");
     }
 
-    /**
-     * The properties file is readonly so don't removing a user
-     *
-     * @return
-     */
     @Override
     public boolean removeUser(RealmModel realm, UserModel user) {
-        throw new IllegalStateException("Remove not supported");
+        return true;
     }
 
     @Override
