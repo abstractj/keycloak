@@ -87,7 +87,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
         LOGGER.info("userExists");
         LOGGER.info("================================================================");
 
-        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
+        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber"};
         try {
             InfoPipe infoPipe = Sssd.infopipe();
             Map<String, Variant> attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
@@ -163,7 +163,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
         LOGGER.info("isValid");
         LOGGER.info("================================================================");
 
-        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
+        String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber"};
         InfoPipe infoPipe = Sssd.infopipe();
         Map<String, Variant> attributes = infoPipe.getUserAttributes(local.getUsername(), Arrays.asList(attr));
 
