@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class BasePropertiesFederationFactory implements UserFederationProviderFactory {
+public class SSSDFederationProviderFactory implements UserFederationProviderFactory {
 
     public static final String PROVIDER_NAME = "sssd";
 
@@ -83,9 +83,9 @@ public class BasePropertiesFederationFactory implements UserFederationProviderFa
         return is;
     }
 
-    public BasePropertiesFederationProvider createProvider(KeycloakSession session, UserFederationProviderModel model,
-                                                                       Properties props) {
-        return new BasePropertiesFederationProvider(session, model, props);
+    public SSSDFederationProvider createProvider(KeycloakSession session, UserFederationProviderModel model,
+                                                 Properties props) {
+        return new SSSDFederationProvider(session, model, props);
     }
 
     /**
@@ -133,7 +133,7 @@ public class BasePropertiesFederationFactory implements UserFederationProviderFa
             @Override
             public void run(KeycloakSession session) {
                 RealmModel realm = session.realms().getRealm(realmId);
-                BasePropertiesFederationProvider federationProvider = (BasePropertiesFederationProvider)getInstance(session, model);
+                SSSDFederationProvider federationProvider = (SSSDFederationProvider)getInstance(session, model);
                 Set<String> allUsernames = federationProvider.getProperties().stringPropertyNames();
                 UserProvider localProvider = session.userStorage();
                 for (String username : allUsernames) {

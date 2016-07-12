@@ -25,13 +25,13 @@ import java.util.*;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class BasePropertiesFederationProvider implements UserFederationProvider {
+public class SSSDFederationProvider implements UserFederationProvider {
     protected static final Set<String> supportedCredentialTypes = new HashSet<String>();
     protected KeycloakSession session;
     protected Properties properties;
     protected UserFederationProviderModel model;
 
-    public BasePropertiesFederationProvider(KeycloakSession session, UserFederationProviderModel model, Properties properties) {
+    public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model, Properties properties) {
         this.session = session;
         this.model = model;
         this.properties = properties;

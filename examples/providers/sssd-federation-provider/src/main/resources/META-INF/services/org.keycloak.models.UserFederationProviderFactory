@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-org.keycloak.examples.federation.properties.BasePropertiesFederationFactory
+org.keycloak.examples.federation.properties.SSSDFederationProviderFactory
