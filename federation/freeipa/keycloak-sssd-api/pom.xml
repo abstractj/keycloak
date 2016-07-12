@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>keycloak-sssd-api</artifactId>
-    <name>Keycloak DBus Java</name>
+    <name>Keycloak SSSD Java</name>
   <description />
 
   <dependencies>
@@ -17,6 +17,11 @@
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-dbus-java</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

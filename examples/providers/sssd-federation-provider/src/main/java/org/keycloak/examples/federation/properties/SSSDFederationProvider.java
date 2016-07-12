@@ -18,10 +18,7 @@
 package org.keycloak.examples.federation.properties;
 
 import org.freedesktop.dbus.Variant;
-import org.freedesktop.sssd.infopipe.InfoPipe;
-import org.jvnet.libpam.PAM;
-import org.jvnet.libpam.PAMException;
-import org.jvnet.libpam.UnixUser;
+import org.jboss.logging.Logger;
 import org.keycloak.examples.federation.properties.impl.PAMAuthenticator;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
@@ -41,8 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
-import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -50,7 +45,7 @@ import java.util.logging.Logger;
  */
 public class SSSDFederationProvider implements UserFederationProvider {
 
-    private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
+    private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class);
 
     protected static final Set<String> supportedCredentialTypes = new HashSet<>();
     protected KeycloakSession session;
@@ -81,31 +76,31 @@ public class SSSDFederationProvider implements UserFederationProvider {
     protected UserModel findOrCreateAuthenticatedUser(RealmModel realm, String username) {
         UserModel user = session.userStorage().getUserByUsername(username, realm);
         if (user != null) {
-//            logger.debug("SSSD authenticated user " + username + " found in Keycloak storage");
+            logger.debug("SSSD authenticated user " + username + " found in Keycloak storage");
 
             if (!model.getId().equals(user.getFederationLink())) {
-//                logger.warn("User with username " + username + " already exists, but is not linked to provider [" + model.getDisplayName() + "]");
+                logger.warn("User with username " + username + " already exists, but is not linked to provider [" + model.getDisplayName() + "]");
                 return null;
             } else {
                 UserModel proxied = validateAndProxy(realm, user);
                 if (proxied != null) {
                     return proxied;
                 } else {
-//                    logger.warn("User with username " + username + " already exists and is linked to provider [" + model.getDisplayName() +
-//                            "] but principal is not correct.");
-//                    logger.warn("Will re-create user");
+                    logger.warn("User with username " + username + " already exists and is linked to provider [" + model.getDisplayName() +
+                            "] but principal is not correct.");
+                    logger.warn("Will re-create user");
                     new UserManager(session).removeUser(realm, user, session.userStorage());
                 }
             }
         }
 
-//        logger.debug("SSSD authenticated user " + username + " not in Keycloak storage. Creating...");
+        logger.debug("SSSD authenticated user " + username + " not in Keycloak storage. Creating...");
         return importUserToKeycloak(realm, username);
     }
 
     protected UserModel importUserToKeycloak(RealmModel realm, String username) {
-        Map<String, Variant> sssdUser = loadSSSDUserByUsername(username);
-//        logger.debugf("Creating SSSD user: %s to local Keycloak storage", username);
+        Map<String, Variant> sssdUser = new Sssd(username).getUserAttributes();
+        logger.debugf("Creating SSSD user: %s to local Keycloak storage", username);
         UserModel user = session.userStorage().addUser(realm, username);
         user.setEnabled(true);
         user.setEmail(Sssd.getRawAttribute(sssdUser.get("mail")));
@@ -115,20 +110,6 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
         return validateAndProxy(realm, user);
     }
-
-    private Map<String, Variant> loadSSSDUserByUsername(String username) {
-        String[] attr = {"mail", "givenname", "sn", "telephoneNumber"};
-        Map<String, Variant> attributes = null;
-        try {
-            InfoPipe infoPipe = Sssd.infopipe();
-            attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return attributes;
-    }
-
 
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
@@ -164,7 +145,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
-        Map<String, Variant> attributes = loadSSSDUserByUsername(local.getUsername());
+        Map<String, Variant> attributes = new Sssd(local.getUsername()).getUserAttributes();
         return Sssd.getRawAttribute(attributes.get("mail")).equalsIgnoreCase(local.getEmail());
     }
 

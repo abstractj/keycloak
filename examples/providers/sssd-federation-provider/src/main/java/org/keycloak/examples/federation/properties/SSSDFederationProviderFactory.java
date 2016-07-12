@@ -37,7 +37,7 @@ import java.util.Set;
 public class SSSDFederationProviderFactory implements UserFederationProviderFactory {
 
     private static final String PROVIDER_NAME = "sssd";
-    private static final Logger LOGGER = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
+    private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class);
 
     static final Set<String> configOptions = new HashSet<String>();
 
@@ -89,13 +89,13 @@ public class SSSDFederationProviderFactory implements UserFederationProviderFact
 
     @Override
     public UserFederationSyncResult syncAllUsers(KeycloakSessionFactory sessionFactory, final String realmId, final UserFederationProviderModel model) {
-        LOGGER.info("Sync users not supported for this provider");
+        logger.info("Sync users not supported for this provider");
         return UserFederationSyncResult.empty();
     }
 
     @Override
     public UserFederationSyncResult syncChangedUsers(KeycloakSessionFactory sessionFactory, final String realmId, final UserFederationProviderModel model, Date lastSync) {
-        LOGGER.info("Sync users not supported for this provider");
+        logger.info("Sync users not supported for this provider");
         return UserFederationSyncResult.empty();
     }
 }

@@ -22,11 +22,11 @@ import org.freedesktop.dbus.Variant;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.sssd.infopipe.InfoPipe;
 import org.freedesktop.sssd.infopipe.User;
+import org.jboss.logging.Logger;
 
-import java.util.MissingResourceException;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Vector;
-
-import static org.freedesktop.sssd.infopipe.InfoPipe.OBJECTPATH;
 
 /**
  * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>.
@@ -34,36 +34,55 @@ import static org.freedesktop.sssd.infopipe.InfoPipe.OBJECTPATH;
 public class Sssd {
 
     public static final String BUSNAME = "org.freedesktop.sssd.infopipe";
-
     public static User user() {
         return SingletonHolder.USER_OBJECT;
     }
-
     public static InfoPipe infopipe() {
         return SingletonHolder.INFOPIPE_OBJECT;
     }
-
-    public static void disconnect(){
+    public static void disconnect() {
         SingletonHolder.DBUS_CONNECTION.disconnect();
     }
 
+    private String username;
+    private static final Logger logger = Logger.getLogger(Sssd.class);
+
+
     public static String getRawAttribute(Variant variant) {
-        if(variant != null) {
+        if (variant != null) {
             Vector value = (Vector) variant.getValue();
-            if(value.size() >= 1) {
+            if (value.size() >= 1) {
                 return value.get(0).toString();
             }
         }
         return null;
     }
 
+    public Map<String, Variant> getUserAttributes() {
+        String[] attr = {"mail", "givenname", "sn", "telephoneNumber"};
+        Map<String, Variant> attributes = null;
+        try {
+            InfoPipe infoPipe = infopipe();
+            attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
+        } catch (Exception e) {
+            logger.error("Failed to retrieve user's attributes from SSSD", e);
+        }
+
+        return attributes;
+    }
+
     private Sssd() {
+    }
+
+    public Sssd(String username) {
+        this.username = username;
     }
 
     private static final class SingletonHolder {
         private static InfoPipe INFOPIPE_OBJECT;
         private static User USER_OBJECT;
         private static DBusConnection DBUS_CONNECTION;
+
         static {
             try {
                 DBUS_CONNECTION = DBusConnection.getConnection(DBusConnection.SYSTEM);
