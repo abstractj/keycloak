@@ -20,23 +20,15 @@ package org.keycloak.examples.federation.properties;
 import org.keycloak.Config;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.KeycloakSessionTask;
-import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserFederationProvider;
 import org.keycloak.models.UserFederationProviderFactory;
 import org.keycloak.models.UserFederationProviderModel;
 import org.keycloak.models.UserFederationSyncResult;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserProvider;
-import org.keycloak.models.utils.KeycloakModelUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -44,14 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SSSDFederationProviderFactory implements UserFederationProviderFactory {
 
-    public static final String PROVIDER_NAME = "sssd";
+    private static final String PROVIDER_NAME = "sssd";
+    private static final Logger LOGGER = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
 
     static final Set<String> configOptions = new HashSet<String>();
-    protected ConcurrentHashMap<String, Properties> files = new ConcurrentHashMap<String, Properties>();
-
-    static {
-        configOptions.add("path");
-    }
 
     @Override
     public String getId() {
@@ -60,41 +48,7 @@ public class SSSDFederationProviderFactory implements UserFederationProviderFact
 
     @Override
     public UserFederationProvider getInstance(KeycloakSession session, UserFederationProviderModel model) {
-        // first get the path to our properties file from the stored configuration of this provider instance.
-        String path = model.getConfig().get("path");
-        if (path == null) {
-            throw new IllegalStateException("Path attribute not configured for provider");
-        }
-        // see if we already loaded the config file
-        Properties props = files.get(path);
-        if (props != null) return createProvider(session, model, props);
-
-
-        props = new Properties();
-        InputStream is = getPropertiesFileStream(path);
-        try {
-            props.load(is);
-            is.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        // remember the properties file for next time
-        files.put(path, props);
-        return createProvider(session, model, props);
-    }
-
-    public InputStream getPropertiesFileStream(String path) {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(path);
-        if (is == null) {
-            throw new IllegalStateException("Path not found for properties file");
-
-        }
-        return is;
-    }
-
-    public SSSDFederationProvider createProvider(KeycloakSession session, UserFederationProviderModel model,
-                                                 Properties props) {
-        return new SSSDFederationProvider(session, model, props);
+        return new SSSDFederationProvider(session, model, this);
     }
 
     /**
@@ -135,36 +89,13 @@ public class SSSDFederationProviderFactory implements UserFederationProviderFact
 
     @Override
     public UserFederationSyncResult syncAllUsers(KeycloakSessionFactory sessionFactory, final String realmId, final UserFederationProviderModel model) {
-        final UserFederationSyncResult syncResult = new UserFederationSyncResult();
-
-        KeycloakModelUtils.runJobInTransaction(sessionFactory, new KeycloakSessionTask() {
-
-            @Override
-            public void run(KeycloakSession session) {
-                RealmModel realm = session.realms().getRealm(realmId);
-                SSSDFederationProvider federationProvider = (SSSDFederationProvider)getInstance(session, model);
-                Set<String> allUsernames = federationProvider.getProperties().stringPropertyNames();
-                UserProvider localProvider = session.userStorage();
-                for (String username : allUsernames) {
-                    UserModel localUser = localProvider.getUserByUsername(username, realm);
-
-                    if (localUser == null) {
-                        // New user, let's import him
-                        UserModel imported = federationProvider.getUserByUsername(realm, username);
-                        if (imported != null) {
-                            syncResult.increaseAdded();
-                        }
-                    }
-                }
-            }
-
-        });
-
-        return syncResult;
+        LOGGER.info("Sync users not supported for this provider");
+        return UserFederationSyncResult.empty();
     }
 
     @Override
     public UserFederationSyncResult syncChangedUsers(KeycloakSessionFactory sessionFactory, final String realmId, final UserFederationProviderModel model, Date lastSync) {
-        return syncAllUsers(sessionFactory, realmId, model);
+        LOGGER.info("Sync users not supported for this provider");
+        return UserFederationSyncResult.empty();
     }
 }

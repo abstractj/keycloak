@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -53,13 +52,11 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     protected static final Set<String> supportedCredentialTypes = new HashSet<String>();
     protected KeycloakSession session;
-    protected Properties properties;
     protected UserFederationProviderModel model;
 
-    public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model, Properties properties) {
+    public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model, SSSDFederationProviderFactory sssdFederationProviderFactory) {
         this.session = session;
         this.model = model;
-        this.properties = properties;
     }
 
     static
@@ -67,18 +64,6 @@ public class SSSDFederationProvider implements UserFederationProvider {
         supportedCredentialTypes.add(UserCredentialModel.PASSWORD);
     }
 
-
-    public KeycloakSession getSession() {
-        return session;
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public UserFederationProviderModel getModel() {
-        return model;
-    }
 
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
@@ -227,6 +212,10 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, UserCredentialModel... input) {
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
         for (UserCredentialModel cred : input) {
             if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
                 UnixUser u = null;
@@ -247,6 +236,10 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel credential) {
+        LOGGER.info("================================================================");
+        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("================================================================");
+
         return CredentialValidationOutput.failed();
     }
 
