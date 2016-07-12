@@ -22,6 +22,7 @@ import org.freedesktop.sssd.infopipe.InfoPipe;
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
 import org.jvnet.libpam.UnixUser;
+import org.keycloak.examples.federation.properties.impl.PAMAuthenticator;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -49,7 +50,6 @@ import java.util.logging.Logger;
  */
 public class SSSDFederationProvider implements UserFederationProvider {
 
-    private static final String PAM_SERVICE = "keycloak";
     private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class.getSimpleName());
 
     protected static final Set<String> supportedCredentialTypes = new HashSet<>();
@@ -129,7 +129,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return attributes;
     }
 
@@ -184,27 +184,13 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, List<UserCredentialModel> input) {
+        PAMAuthenticator pam = new PAMAuthenticator();
         for (UserCredentialModel cred : input) {
             if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-                return (authenticate(user.getUsername(), cred.getValue()) != null);
+                return (pam.authenticate(user.getUsername(), cred.getValue()) != null);
             }
         }
         return false;
-    }
-
-    private UnixUser authenticate(String username, String password) {
-        PAM pam = null;
-        UnixUser user = null;
-        try {
-            pam = new PAM(PAM_SERVICE);
-            user = pam.authenticate(username, password);
-        } catch (PAMException e) {
-//            logger.error("Authentication failed", e);
-            e.printStackTrace();
-        } finally {
-            pam.dispose();
-        }
-        return user;
     }
 
     @Override
