@@ -74,7 +74,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     /**
      * Called after successful authentication
      *
-     * @param realm realm
+     * @param realm    realm
      * @param username username without realm prefix
      * @return user if found or successfully created. Null if user with same username already exists, but is not linked to this provider
      */
@@ -117,7 +117,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     }
 
     public String getRawAttribute(Variant variant) {
-        return ((Vector)variant.getValue()).get(0).toString();
+        return ((Vector) variant.getValue()).get(0).toString();
     }
 
     private Map<String, Variant> loadSSSDUserByUsername(String username) {
@@ -128,11 +128,8 @@ public class SSSDFederationProvider implements UserFederationProvider {
             attributes = infoPipe.getUserAttributes(username, Arrays.asList(attr));
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            //TODO connection must be closed here
-//            Sssd.disconnect();
         }
-
+        
         return attributes;
     }
 
@@ -263,6 +260,6 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public void close() {
-
+        Sssd.disconnect();
     }
 }
