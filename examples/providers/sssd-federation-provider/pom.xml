@@ -51,12 +51,11 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-sssd-api</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>libpam4j</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-libpam4j</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
