@@ -18,7 +18,16 @@
 package org.keycloak.examples.federation.properties;
 
 import org.keycloak.Config;
-import org.keycloak.models.*;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.KeycloakSessionTask;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserFederationProvider;
+import org.keycloak.models.UserFederationProviderFactory;
+import org.keycloak.models.UserFederationProviderModel;
+import org.keycloak.models.UserFederationSyncResult;
+import org.keycloak.models.UserModel;
+import org.keycloak.models.UserProvider;
 import org.keycloak.models.utils.KeycloakModelUtils;
 
 import java.io.IOException;
