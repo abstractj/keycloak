@@ -108,16 +108,12 @@ public class SSSDFederationProvider implements UserFederationProvider {
 //        logger.debugf("Creating SSSD user: %s to local Keycloak storage", username);
         UserModel user = session.userStorage().addUser(realm, username);
         user.setEnabled(true);
-        user.setEmail(getRawAttribute(sssdUser.get("mail")));
-        user.setFirstName(getRawAttribute(sssdUser.get("givenname")));
-        user.setLastName(getRawAttribute(sssdUser.get("sn")));
+        user.setEmail(Sssd.getRawAttribute(sssdUser.get("mail")));
+        user.setFirstName(Sssd.getRawAttribute(sssdUser.get("givenname")));
+        user.setLastName(Sssd.getRawAttribute(sssdUser.get("sn")));
         user.setFederationLink(model.getId());
 
         return validateAndProxy(realm, user);
-    }
-
-    public String getRawAttribute(Variant variant) {
-        return ((Vector) variant.getValue()).get(0).toString();
     }
 
     private Map<String, Variant> loadSSSDUserByUsername(String username) {
@@ -169,7 +165,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
         Map<String, Variant> attributes = loadSSSDUserByUsername(local.getUsername());
-        return getRawAttribute(attributes.get("mail")).equalsIgnoreCase(local.getEmail());
+        return Sssd.getRawAttribute(attributes.get("mail")).equalsIgnoreCase(local.getEmail());
     }
 
     @Override

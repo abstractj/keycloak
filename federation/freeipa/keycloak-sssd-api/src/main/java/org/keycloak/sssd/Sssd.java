@@ -18,11 +18,13 @@
 package org.keycloak.sssd;
 
 import org.freedesktop.dbus.DBusConnection;
+import org.freedesktop.dbus.Variant;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.sssd.infopipe.InfoPipe;
 import org.freedesktop.sssd.infopipe.User;
 
 import java.util.MissingResourceException;
+import java.util.Vector;
 
 import static org.freedesktop.sssd.infopipe.InfoPipe.OBJECTPATH;
 
@@ -43,6 +45,16 @@ public class Sssd {
 
     public static void disconnect(){
         SingletonHolder.DBUS_CONNECTION.disconnect();
+    }
+
+    public static String getRawAttribute(Variant variant) {
+        if(variant != null) {
+            Vector value = (Vector) variant.getValue();
+            if(value.size() >= 1) {
+                return value.get(0).toString();
+            }
+        }
+        return null;
     }
 
     private Sssd() {
