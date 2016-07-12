@@ -47,9 +47,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.abstractj</groupId>
-            <artifactId>libpam4j</artifactId>
-            <version>1.9.0</version>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>4.1.0</version>
         </dependency>
     </dependencies>
 

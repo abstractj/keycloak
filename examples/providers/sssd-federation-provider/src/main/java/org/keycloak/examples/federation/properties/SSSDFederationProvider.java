@@ -19,7 +19,6 @@ package org.keycloak.examples.federation.properties;
 
 import org.freedesktop.dbus.Variant;
 import org.freedesktop.sssd.infopipe.InfoPipe;
-import org.jboss.logging.Logger;
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
 import org.jvnet.libpam.UnixUser;
@@ -40,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -68,7 +68,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("getUserByUsername");
         LOGGER.info("================================================================");
 
         if (userExists(username)) {
@@ -84,7 +84,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     private boolean userExists(String username) {
 
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("userExists");
         LOGGER.info("================================================================");
 
         String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
@@ -160,7 +160,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("isValid");
         LOGGER.info("================================================================");
 
         String[] attr = {"username", "mail", "givenname", "sn", "telephoneNumber", "mail"};
@@ -189,7 +189,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, List<UserCredentialModel> input) {
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("validCredentials1");
         LOGGER.info("================================================================");
 
         for (UserCredentialModel cred : input) {
@@ -213,7 +213,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, UserCredentialModel... input) {
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("validCredentials2");
         LOGGER.info("================================================================");
 
         for (UserCredentialModel cred : input) {
@@ -237,7 +237,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel credential) {
         LOGGER.info("================================================================");
-        LOGGER.info("" + SSSDFederationProvider.class.getEnclosingMethod().getName());
+        LOGGER.info("validCredentials3");
         LOGGER.info("================================================================");
 
         return CredentialValidationOutput.failed();
