@@ -6,6 +6,8 @@ import org.freedesktop.sssd.infopipe.InfoPipe;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>.
@@ -18,7 +20,7 @@ public class SssdTest {
         InfoPipe infoPipe = Sssd.infopipe();
         Map<String, Variant> attributes = infoPipe.getUserAttributes("john", Arrays.asList(attr));
 
-        System.out.println(attributes);
+        System.out.println(((Vector)attributes.get("mail").getValue()).get(0));
 
         List<String> groups = infoPipe.getUserGroups("alice");
 
