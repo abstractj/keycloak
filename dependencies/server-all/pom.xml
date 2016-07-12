@@ -84,6 +84,16 @@
             <artifactId>keycloak-kerberos-federation</artifactId>
         </dependency>
 
+        <!-- Dependencies for RHEL IdM -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-dbus-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-sssd-api</artifactId>
+        </dependency>
+
         <!-- saml -->
         <dependency>
             <groupId>org.keycloak</groupId>

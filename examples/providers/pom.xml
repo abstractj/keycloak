@@ -34,7 +34,7 @@
         <module>event-listener-sysout</module>
         <module>event-store-mem</module>
         <module>federation-provider</module>
-        <module>federation-sssd-provider</module>
+        <module>sssd-federation-provider/</module>
         <module>authenticator</module>
         <module>rest</module>
         <module>domain-extension</module>

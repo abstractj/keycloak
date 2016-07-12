@@ -679,16 +679,21 @@
                 <artifactId>keycloak-kerberos-federation</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.keycloak</groupId>
-                <artifactId>keycloak-freeipa-federation</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-            </dependency>
+            <!-- Dependencies for RHEL IdM -->
             <dependency>
                 <groupId>org.abstractj</groupId>
                 <artifactId>libpam4j</artifactId>
                 <version>1.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-dbus-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-sssd-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
