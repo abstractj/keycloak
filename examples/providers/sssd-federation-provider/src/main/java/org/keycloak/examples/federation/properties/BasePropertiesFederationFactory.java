@@ -18,16 +18,7 @@
 package org.keycloak.examples.federation.properties;
 
 import org.keycloak.Config;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.KeycloakSessionTask;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserFederationProvider;
-import org.keycloak.models.UserFederationProviderFactory;
-import org.keycloak.models.UserFederationProviderModel;
-import org.keycloak.models.UserFederationSyncResult;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserProvider;
+import org.keycloak.models.*;
 import org.keycloak.models.utils.KeycloakModelUtils;
 
 import java.io.IOException;
@@ -42,12 +33,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public abstract class BasePropertiesFederationFactory implements UserFederationProviderFactory {
+public class BasePropertiesFederationFactory implements UserFederationProviderFactory {
+
+    public static final String PROVIDER_NAME = "sssd";
+
     static final Set<String> configOptions = new HashSet<String>();
     protected ConcurrentHashMap<String, Properties> files = new ConcurrentHashMap<String, Properties>();
 
     static {
         configOptions.add("path");
+    }
+
+    @Override
+    public String getId() {
+        return PROVIDER_NAME;
     }
 
     @Override
@@ -75,9 +74,19 @@ public abstract class BasePropertiesFederationFactory implements UserFederationP
         return createProvider(session, model, props);
     }
 
-    protected abstract InputStream getPropertiesFileStream(String path);
+    public InputStream getPropertiesFileStream(String path) {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+        if (is == null) {
+            throw new IllegalStateException("Path not found for properties file");
 
-    protected abstract BasePropertiesFederationProvider createProvider(KeycloakSession session, UserFederationProviderModel model, Properties props);
+        }
+        return is;
+    }
+
+    public BasePropertiesFederationProvider createProvider(KeycloakSession session, UserFederationProviderModel model,
+                                                                       Properties props) {
+        return new BasePropertiesFederationProvider(session, model, props);
+    }
 
     /**
      * List the configuration options to render and display in the admin console's generic management page for this

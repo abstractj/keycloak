@@ -17,29 +17,15 @@
 
 package org.keycloak.examples.federation.properties;
 
-import org.keycloak.models.CredentialValidationOutput;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserFederationProvider;
-import org.keycloak.models.UserFederationProviderModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public abstract class BasePropertiesFederationProvider implements UserFederationProvider {
+public class BasePropertiesFederationProvider implements UserFederationProvider {
     protected static final Set<String> supportedCredentialTypes = new HashSet<String>();
     protected KeycloakSession session;
     protected Properties properties;
@@ -193,6 +179,52 @@ public abstract class BasePropertiesFederationProvider implements UserFederation
     @Override
     public CredentialValidationOutput validCredentials(RealmModel realm, UserCredentialModel credential) {
         return CredentialValidationOutput.failed();
+    }
+
+    /**
+     * Keycloak will call this method if it finds an imported UserModel.  Here we proxy the UserModel with
+     * a Readonly proxy which will barf if password is updated.
+     *
+     * @param local
+     * @return
+     */
+    @Override
+    public UserModel validateAndProxy(RealmModel realm, UserModel local) {
+        if (isValid(realm, local)) {
+            return new ReadonlyUserModelProxy(local);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * The properties file is readonly so don't suppport registration.
+     *
+     * @return
+     */
+    @Override
+    public boolean synchronizeRegistrations() {
+        return false;
+    }
+
+    /**
+     * The properties file is readonly so don't suppport registration.
+     *
+     * @return
+     */
+    @Override
+    public UserModel register(RealmModel realm, UserModel user) {
+        throw new IllegalStateException("Registration not supported");
+    }
+
+    /**
+     * The properties file is readonly so don't removing a user
+     *
+     * @return
+     */
+    @Override
+    public boolean removeUser(RealmModel realm, UserModel user) {
+        throw new IllegalStateException("Remove not supported");
     }
 
     @Override
