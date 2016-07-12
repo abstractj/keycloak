@@ -129,7 +129,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            //TODO cannot disconnect while still returning parameters
+            //TODO connection must be closed here
 //            Sssd.disconnect();
         }
 
@@ -171,14 +171,8 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean isValid(RealmModel realm, UserModel local) {
-
         Map<String, Variant> attributes = loadSSSDUserByUsername(local.getUsername());
-
-        //TODO remove this dirty thing
-        if (attributes != null)
-            return true;
-
-        return attributes.containsKey(local.getEmail());
+        return getRawAttribute(attributes.get("mail")).equalsIgnoreCase(local.getEmail());
     }
 
     @Override
