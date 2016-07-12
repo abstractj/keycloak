@@ -19,6 +19,7 @@ package org.keycloak.examples.federation.properties;
 
 import org.freedesktop.dbus.Variant;
 import org.freedesktop.sssd.infopipe.InfoPipe;
+import org.jboss.logging.Logger;
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
 import org.jvnet.libpam.UnixUser;
@@ -39,7 +40,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
