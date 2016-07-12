@@ -34,5 +34,6 @@
     <modules>
         <module>keycloak-dbus-java</module>
         <module>keycloak-sssd-api</module>
+        <module>keycloak-libpam4j</module>
     </modules>
 </project>

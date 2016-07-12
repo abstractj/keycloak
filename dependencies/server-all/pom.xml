@@ -83,17 +83,6 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-kerberos-federation</artifactId>
         </dependency>
-
-        <!-- Dependencies for RHEL IdM -->
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-dbus-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-sssd-api</artifactId>
-        </dependency>
-
         <!-- saml -->
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -118,6 +107,20 @@
                     <artifactId>snakeyaml</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Dependencies for RHEL IdM -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-dbus-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-sssd-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-libpam4j</artifactId>
         </dependency>
 
         <!-- Built-in Authorization Policy Providers  -->
