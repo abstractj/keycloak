@@ -167,6 +167,14 @@ public class SSSDFederationProvider implements UserFederationProvider {
         InfoPipe infoPipe = Sssd.infopipe();
         Map<String, Variant> attributes = infoPipe.getUserAttributes(local.getUsername(), Arrays.asList(attr));
 
+        LOGGER.info("" + attributes);
+
+        LOGGER.info("" + attributes.keySet());
+
+        //TODO remove this dirty thing
+        if(attributes != null)
+            return true;
+
         return attributes.containsKey(local.getEmail());
     }
 
