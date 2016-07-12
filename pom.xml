@@ -681,6 +681,17 @@
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-freeipa-federation</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.abstractj</groupId>
+                <artifactId>libpam4j</artifactId>
+                <version>1.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-ldap-federation</artifactId>
                 <version>${project.version}</version>
             </dependency>
