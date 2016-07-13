@@ -29,7 +29,8 @@ import java.util.Map;
 import java.util.Vector;
 
 /**
- * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>.
+ * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
+ * @version $Revision: 1 $
  */
 public class Sssd {
 
@@ -47,6 +48,27 @@ public class Sssd {
     private String username;
     private static final Logger logger = Logger.getLogger(Sssd.class);
 
+    private Sssd() {
+    }
+    public Sssd(String username) {
+        this.username = username;
+    }
+
+    private static final class SingletonHolder {
+        private static InfoPipe INFOPIPE_OBJECT;
+        private static User USER_OBJECT;
+        private static DBusConnection DBUS_CONNECTION;
+
+        static {
+            try {
+                DBUS_CONNECTION = DBusConnection.getConnection(DBusConnection.SYSTEM);
+                INFOPIPE_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, InfoPipe.OBJECTPATH, InfoPipe.class);
+                USER_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, User.OBJECTPATH, User.class);
+            } catch (DBusException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static String getRawAttribute(Variant variant) {
         if (variant != null) {
@@ -71,28 +93,5 @@ public class Sssd {
         return attributes;
     }
 
-    private Sssd() {
-    }
 
-    public Sssd(String username) {
-        this.username = username;
-    }
-
-    private static final class SingletonHolder {
-        private static InfoPipe INFOPIPE_OBJECT;
-        private static User USER_OBJECT;
-        private static DBusConnection DBUS_CONNECTION;
-
-        static {
-            try {
-                DBUS_CONNECTION = DBusConnection.getConnection(DBusConnection.SYSTEM);
-                INFOPIPE_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, InfoPipe.OBJECTPATH, InfoPipe.class);
-                USER_OBJECT = DBUS_CONNECTION.getRemoteObject(BUSNAME, User.OBJECTPATH, User.class);
-            } catch (DBusException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-    }
 }

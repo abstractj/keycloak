@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.keycloak.examples.federation.properties;
+package org.keycloak.examples.federation.sssd;
 
 import org.freedesktop.dbus.Variant;
 import org.jboss.logging.Logger;
-import org.keycloak.examples.federation.properties.impl.PAMAuthenticator;
+import org.keycloak.examples.federation.sssd.impl.PAMAuthenticator;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
+ * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
  * @version $Revision: 1 $
  */
 public class SSSDFederationProvider implements UserFederationProvider {
@@ -48,12 +48,14 @@ public class SSSDFederationProvider implements UserFederationProvider {
     private static final Logger logger = Logger.getLogger(SSSDFederationProvider.class);
 
     protected static final Set<String> supportedCredentialTypes = new HashSet<>();
+    private final SSSDFederationProviderFactory factory;
     protected KeycloakSession session;
     protected UserFederationProviderModel model;
 
     public SSSDFederationProvider(KeycloakSession session, UserFederationProviderModel model, SSSDFederationProviderFactory sssdFederationProviderFactory) {
         this.session = session;
         this.model = model;
+        this.factory = sssdFederationProviderFactory;
     }
 
     static {
@@ -161,10 +163,10 @@ public class SSSDFederationProvider implements UserFederationProvider {
 
     @Override
     public boolean validCredentials(RealmModel realm, UserModel user, List<UserCredentialModel> input) {
-        PAMAuthenticator pam = new PAMAuthenticator();
         for (UserCredentialModel cred : input) {
             if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-                return (pam.authenticate(user.getUsername(), cred.getValue()) != null);
+                PAMAuthenticator pam = factory.createPAMAuthenticator(user.getUsername(), cred.getValue());
+                return (pam.authenticate() != null);
             }
         }
         return false;

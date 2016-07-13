@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.keycloak.examples.federation.properties;
+package org.keycloak.examples.federation.sssd;
 
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserCredentialValueModel;
