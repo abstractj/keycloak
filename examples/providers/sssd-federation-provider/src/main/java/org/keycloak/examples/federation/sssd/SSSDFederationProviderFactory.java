@@ -68,11 +68,6 @@ public class SSSDFederationProviderFactory implements UserFederationProviderFact
         return null;
     }
 
-    /**
-     * You can import additional plugin configuration from keycloak-server.json here.
-     *
-     * @param config
-     */
     @Override
     public void init(Config.Scope config) {
 

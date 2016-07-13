@@ -182,13 +182,6 @@ public class SSSDFederationProvider implements UserFederationProvider {
         return CredentialValidationOutput.failed();
     }
 
-    /**
-     * Keycloak will call this method if it finds an imported UserModel.  Here we proxy the UserModel with
-     * a Readonly proxy which will barf if password is updated.
-     *
-     * @param local
-     * @return
-     */
     @Override
     public UserModel validateAndProxy(RealmModel realm, UserModel local) {
         if (isValid(realm, local)) {
@@ -198,21 +191,11 @@ public class SSSDFederationProvider implements UserFederationProvider {
         }
     }
 
-    /**
-     * The properties file is readonly so don't suppport registration.
-     *
-     * @return
-     */
     @Override
     public boolean synchronizeRegistrations() {
         return false;
     }
 
-    /**
-     * The properties file is readonly so don't suppport registration.
-     *
-     * @return
-     */
     @Override
     public UserModel register(RealmModel realm, UserModel user) {
         throw new IllegalStateException("Registration not supported");
