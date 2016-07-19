@@ -1,4 +1,4 @@
-package org.keycloak.examples.federation.sssd.impl;
+package org.keycloak.federation.sssd.impl;
 
 import org.jboss.logging.Logger;
 import org.jvnet.libpam.PAM;
@@ -16,11 +16,11 @@ public class PAMAuthenticator {
     private static final String PAM_SERVICE = "keycloak";
     private static final Logger logger = Logger.getLogger(PAMAuthenticator.class);
     private final String username;
-    private final String password;
+    private final String[] factors;
 
-    public PAMAuthenticator(String username, String password) {
+    public PAMAuthenticator(String username, String... factors) {
         this.username = username;
-        this.password = password;
+        this.factors = factors;
     }
 
     /**
@@ -33,7 +33,7 @@ public class PAMAuthenticator {
         UnixUser user = null;
         try {
             pam = new PAM(PAM_SERVICE);
-            user = pam.authenticate(username, password);
+            user = pam.authenticate(username, factors);
         } catch (PAMException e) {
             logger.error("Authentication failed", e);
             e.printStackTrace();

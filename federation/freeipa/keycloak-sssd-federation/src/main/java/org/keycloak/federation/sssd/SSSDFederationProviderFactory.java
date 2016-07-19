@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.keycloak.examples.federation.sssd;
+package org.keycloak.federation.sssd;
 
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
-import org.keycloak.examples.federation.sssd.impl.PAMAuthenticator;
+import org.keycloak.federation.sssd.impl.PAMAuthenticator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.UserFederationProvider;
@@ -95,8 +95,8 @@ public class SSSDFederationProviderFactory implements UserFederationProviderFact
         return UserFederationSyncResult.empty();
     }
 
-    protected PAMAuthenticator createPAMAuthenticator(String username, String password) {
-        return new PAMAuthenticator(username, password);
+    protected PAMAuthenticator createPAMAuthenticator(String username, String... factors) {
+        return new PAMAuthenticator(username, factors);
     }
 
 }

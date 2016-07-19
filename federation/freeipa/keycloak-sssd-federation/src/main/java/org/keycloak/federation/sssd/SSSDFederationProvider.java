@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.keycloak.examples.federation.sssd;
+package org.keycloak.federation.sssd;
 
 import org.freedesktop.dbus.Variant;
 import org.jboss.logging.Logger;
-import org.keycloak.examples.federation.sssd.impl.PAMAuthenticator;
+import org.keycloak.federation.sssd.impl.PAMAuthenticator;
 import org.keycloak.models.CredentialValidationOutput;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
@@ -188,7 +188,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public UserModel validateAndProxy(RealmModel realm, UserModel local) {
         if (isValid(realm, local)) {
-            return new ReadonlyUserModelProxy(local);
+            return new ReadonlySSSDUserModelDelegate(local, this);
         } else {
             return null;
         }

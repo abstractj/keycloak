@@ -15,43 +15,63 @@
  * limitations under the License.
  */
 
-package org.keycloak.examples.federation.sssd;
+package org.keycloak.federation.sssd;
 
+import org.keycloak.models.ModelReadOnlyException;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserCredentialValueModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.UserModelDelegate;
 
 /**
- * Readonly proxy for a UserModel that prevents passwords from being updated.
+ * Readonly proxy for a SSSD UserModel that prevents attributes from being updated.
  *
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
+ * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
  * @version $Revision: 1 $
  */
-public class ReadonlyUserModelProxy extends UserModelDelegate {
+public class ReadonlySSSDUserModelDelegate extends UserModelDelegate implements UserModel {
 
-    public ReadonlyUserModelProxy(UserModel delegate) {
+    private final SSSDFederationProvider provider;
+
+    public ReadonlySSSDUserModelDelegate(UserModel delegate, SSSDFederationProvider provider) {
         super(delegate);
+        this.provider = provider;
     }
 
     @Override
     public void setUsername(String username) {
-        throw new IllegalStateException("Username is readonly");
+        throw new ModelReadOnlyException("Federated storage is not writable");
+    }
+
+    @Override
+    public void setLastName(String lastName) {
+        throw new ModelReadOnlyException("Federated storage is not writable");
+    }
+
+    @Override
+    public void setFirstName(String first) {
+        throw new ModelReadOnlyException("Federated storage is not writable");
     }
 
     @Override
     public void updateCredentialDirectly(UserCredentialValueModel cred) {
         if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-            throw new IllegalStateException("Passwords are readonly");
+            throw new IllegalStateException("Federated storage is not writable");
         }
         super.updateCredentialDirectly(cred);
     }
 
     @Override
     public void updateCredential(UserCredentialModel cred) {
-        if (cred.getType().equals(UserCredentialModel.PASSWORD)) {
-            throw new IllegalStateException("Passwords are readonly");
+        if (provider.getSupportedCredentialTypes(delegate).contains(cred.getType())) {
+            throw new ModelReadOnlyException("Federated storage is not writable");
         }
-        super.updateCredential(cred);
+        delegate.updateCredential(cred);
+    }
+
+    @Override
+    public void setEmail(String email) {
+        throw new ModelReadOnlyException("Federated storage is not writable");
     }
 }
