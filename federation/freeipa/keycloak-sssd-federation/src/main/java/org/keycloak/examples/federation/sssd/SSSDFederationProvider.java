@@ -188,7 +188,7 @@ public class SSSDFederationProvider implements UserFederationProvider {
     @Override
     public UserModel validateAndProxy(RealmModel realm, UserModel local) {
         if (isValid(realm, local)) {
-            return new ReadonlyUserModelProxy(local);
+            return new ReadonlySSSDUserModelDelegate(local, this);
         } else {
             return null;
         }
