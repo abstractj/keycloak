@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
+ * @@author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
  * @version $Revision: 1 $
  */
 public class PAMFormAuthenticator implements Authenticator {
@@ -55,8 +55,11 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("authenticate()");
         logger.info("=====================================================");
 
-        Response challengeResponse = challenge(context, null);
+//        Response challengeResponse = challenge(context, null);
+        Response challengeResponse = context.form().createForm("pam-login.ftl");
         context.challenge(challengeResponse);
+
+
     }
 
     public void validateOTP(AuthenticationFlowContext context) {
