@@ -32,10 +32,10 @@ import java.util.List;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class OTPFormAuthenticatorFactory implements AuthenticatorFactory {
+public class PAMFormAuthenticatorFactory implements AuthenticatorFactory {
 
-    public static final String PROVIDER_ID = "auth-otp-form";
-    public static final OTPFormAuthenticator SINGLETON = new OTPFormAuthenticator();
+    public static final String PROVIDER_ID = "auth-pam-form";
+    public static final PAMFormAuthenticator SINGLETON = new PAMFormAuthenticator();
 
     @Override
     public Authenticator create(KeycloakSession session) {
@@ -64,7 +64,7 @@ public class OTPFormAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getReferenceCategory() {
-        return UserCredentialModel.TOTP;
+        return UserCredentialModel.PASSWORD;
     }
 
     @Override
@@ -89,12 +89,12 @@ public class OTPFormAuthenticatorFactory implements AuthenticatorFactory {
 
     @Override
     public String getDisplayType() {
-        return "Custom OTP Form";
+        return "Custom PAM Form";
     }
 
     @Override
     public String getHelpText() {
-        return "Custom Validates a OTP on a separate OTP form.";
+        return "Custom Validates a PAM on a separate PAM form.";
     }
 
     @Override

@@ -39,8 +39,7 @@ import java.util.List;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class OTPFormAuthenticator extends AbstractUsernameFormAuthenticator implements Authenticator {
-    public static final String TOTP_FORM_ACTION = "totp";
+public class PAMFormAuthenticator implements Authenticator {
 
     @Override
     public void action(AuthenticationFlowContext context) {
@@ -54,27 +53,6 @@ public class OTPFormAuthenticator extends AbstractUsernameFormAuthenticator impl
     }
 
     public void validateOTP(AuthenticationFlowContext context) {
-        MultivaluedMap<String, String> inputData = context.getHttpRequest().getDecodedFormParameters();
-        if (inputData.containsKey("cancel")) {
-            context.resetFlow();
-            return;
-        }
-        List<UserCredentialModel> credentials = new LinkedList<>();
-        String password = inputData.getFirst(CredentialRepresentation.TOTP);
-        if (password == null) {
-            Response challengeResponse = challenge(context, null);
-            context.challenge(challengeResponse);
-            return;
-        }
-        credentials.add(UserCredentialModel.otp(context.getRealm().getOTPPolicy().getType(), password));
-        boolean valid = context.getSession().users().validCredentials(context.getSession(), context.getRealm(), context.getUser(), credentials);
-        if (!valid) {
-            context.getEvent().user(context.getUser())
-                    .error(Errors.INVALID_USER_CREDENTIALS);
-            Response challengeResponse = challenge(context, Messages.INVALID_TOTP);
-            context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challengeResponse);
-            return;
-        }
         context.success();
     }
 
@@ -85,15 +63,14 @@ public class OTPFormAuthenticator extends AbstractUsernameFormAuthenticator impl
     }
 
     protected Response challenge(AuthenticationFlowContext context, String error) {
+        
         LoginFormsProvider forms = context.form();
-        if (error != null) forms.setError(error);
-
         return forms.createLoginTotp();
     }
 
     @Override
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
-        return session.users().configuredForCredentialType(realm.getOTPPolicy().getType(), realm, user);
+        return true;
     }
 
     @Override
