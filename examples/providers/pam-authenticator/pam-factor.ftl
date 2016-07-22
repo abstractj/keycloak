@@ -7,23 +7,24 @@
     <#elseif section = "form">
         <#if realm.password>
         <form id="kc-form-login" class="${properties.kcFormClass!}" action="${url.loginAction}" method="post">
+
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="username" class="${properties.kcLabelClass!}"><#if !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if></label>
+                    <label for="first-factor" class="${properties.kcLabelClass!}">First factor or Password</label>
                 </div>
 
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input id="username" class="${properties.kcInputClass!}" name="username" type="text" autofocus />
+                    <input id="first-factor" class="${properties.kcInputClass!}" name="first-factor" type="password" autocomplete="off" />
                 </div>
             </div>
 
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="password" class="${properties.kcLabelClass!}">${msg("password")}</label>
+                    <label for="second-factor" class="${properties.kcLabelClass!}">Second factor</label>
                 </div>
 
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input id="password" class="${properties.kcInputClass!}" name="password" type="password" autocomplete="off" />
+                    <input id="second-factor" class="${properties.kcInputClass!}" name="second-factor" type="password" autocomplete="off" />
                 </div>
             </div>
 
@@ -49,7 +50,7 @@
 
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
                     <div class="${properties.kcFormButtonsWrapperClass!}">
-                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="login-next" id="kc-login-next" type="submit" value="Next"/>
+                        <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" name="login" id="kc-login" type="submit" value="${msg("doLogIn")}"/>
                     </div>
                 </div>
             </div>

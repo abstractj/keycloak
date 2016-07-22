@@ -59,7 +59,6 @@ public class PAMFormAuthenticator implements Authenticator {
         Response challengeResponse = context.form().createForm("pam-login.ftl");
         context.challenge(challengeResponse);
 
-
     }
 
     public void validateOTP(AuthenticationFlowContext context) {
@@ -68,7 +67,10 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("validateOTP()");
         logger.info("=====================================================");
 
-        context.success();
+        Response challengeResponse = context.form().createForm("pam-factor.ftl");
+        context.challenge(challengeResponse);
+
+//        context.success();
     }
 
     //Intentionally changed to false
