@@ -87,9 +87,6 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("validateCredential()");
         logger.info("=====================================================");
 
-        Response challengeResponse = context.form().createForm("pam-factor.ftl");
-        context.challenge(challengeResponse);
-
         /* set to false for now, otherwise username/password will be validated */
         return false;
 
