@@ -19,25 +19,17 @@ package org.keycloak.examples.authenticator;
 
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.AuthenticationProcessor;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
-import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -50,7 +42,15 @@ public class PAMFormAuthenticator implements Authenticator {
 
     @Override
     public void action(AuthenticationFlowContext context) {
-        validateOTP(context);
+        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        if (formData.containsKey("cancel")) {
+            context.cancelLogin();
+            return;
+        }
+        if (!validateCredential(context, formData)) {
+            return;
+        }
+        context.success();
     }
 
     @Override
@@ -81,14 +81,17 @@ public class PAMFormAuthenticator implements Authenticator {
 
     }
 
-    public void validateOTP(AuthenticationFlowContext context) {
+    public boolean validateCredential(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
 
         logger.info("=====================================================");
-        logger.info("validateOTP()");
+        logger.info("validateCredential()");
         logger.info("=====================================================");
 
         Response challengeResponse = context.form().createForm("pam-factor.ftl");
         context.challenge(challengeResponse);
+
+        /* set to false for now, otherwise username/password will be validated */
+        return false;
 
 //        context.success();
     }
