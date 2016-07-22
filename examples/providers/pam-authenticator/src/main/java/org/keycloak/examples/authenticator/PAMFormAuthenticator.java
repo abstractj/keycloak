@@ -17,8 +17,10 @@
 
 package org.keycloak.examples.authenticator;
 
+import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
+import org.keycloak.authentication.AuthenticationProcessor;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
 import org.keycloak.events.Errors;
@@ -27,7 +29,9 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -55,8 +59,24 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("authenticate()");
         logger.info("=====================================================");
 
-//        Response challengeResponse = challenge(context, null);
-        Response challengeResponse = context.form().createForm("pam-login.ftl");
+//        Response challengeResponse = context.form().createForm("pam-login.ftl");
+//        context.challenge(challengeResponse);
+
+        MultivaluedMap<String, String> formData = new MultivaluedMapImpl<>();
+        String loginHint = context.getClientSession().getNote(OIDCLoginProtocol.LOGIN_HINT_PARAM);
+
+        String rememberMeUsername = AuthenticationManager.getRememberMeUsername(context.getRealm(), context.getHttpRequest().getHttpHeaders());
+
+        if (loginHint != null || rememberMeUsername != null) {
+            if (loginHint != null) {
+                formData.add(AuthenticationManager.FORM_USERNAME, loginHint);
+            } else {
+                formData.add(AuthenticationManager.FORM_USERNAME, rememberMeUsername);
+                formData.add("rememberMe", "on");
+            }
+        }
+        Response challengeResponse = challenge(context, formData);
+        context.getClientSession().setNote(AuthenticationProcessor.CURRENT_AUTHENTICATION_EXECUTION, context.getExecution().getId());
         context.challenge(challengeResponse);
 
     }
@@ -79,14 +99,17 @@ public class PAMFormAuthenticator implements Authenticator {
         return false;
     }
 
-    protected Response challenge(AuthenticationFlowContext context, String error) {
+    protected Response challenge(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
 
         logger.info("=====================================================");
         logger.info("challenge()");
         logger.info("=====================================================");
 
         LoginFormsProvider forms = context.form();
-        return forms.createLoginTotp();
+
+        if (formData.size() > 0) forms.setFormData(formData);
+
+        return context.form().createForm("pam-login.ftl");
     }
 
     @Override
