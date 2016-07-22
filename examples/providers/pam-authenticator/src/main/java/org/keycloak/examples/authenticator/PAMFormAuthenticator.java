@@ -59,9 +59,6 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("authenticate()");
         logger.info("=====================================================");
 
-//        Response challengeResponse = context.form().createForm("pam-login.ftl");
-//        context.challenge(challengeResponse);
-
         MultivaluedMap<String, String> formData = new MultivaluedMapImpl<>();
         String loginHint = context.getClientSession().getNote(OIDCLoginProtocol.LOGIN_HINT_PARAM);
 
