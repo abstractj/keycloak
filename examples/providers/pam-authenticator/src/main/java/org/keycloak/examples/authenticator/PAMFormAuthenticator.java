@@ -34,12 +34,15 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
 public class PAMFormAuthenticator implements Authenticator {
+
+    private static final Logger logger = Logger.getLogger(PAMFormAuthenticator.class.getSimpleName());
 
     @Override
     public void action(AuthenticationFlowContext context) {
@@ -48,11 +51,20 @@ public class PAMFormAuthenticator implements Authenticator {
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
+        logger.info("=====================================================");
+        logger.info("authenticate()");
+        logger.info("=====================================================");
+
         Response challengeResponse = challenge(context, null);
         context.challenge(challengeResponse);
     }
 
     public void validateOTP(AuthenticationFlowContext context) {
+
+        logger.info("=====================================================");
+        logger.info("validateOTP()");
+        logger.info("=====================================================");
+
         context.success();
     }
 
@@ -63,13 +75,21 @@ public class PAMFormAuthenticator implements Authenticator {
     }
 
     protected Response challenge(AuthenticationFlowContext context, String error) {
-        
+
+        logger.info("=====================================================");
+        logger.info("challenge()");
+        logger.info("=====================================================");
+
         LoginFormsProvider forms = context.form();
         return forms.createLoginTotp();
     }
 
     @Override
     public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
+        logger.info("=====================================================");
+        logger.info("configuredFor()");
+        logger.info("=====================================================");
+
         return true;
     }
 
