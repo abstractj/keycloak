@@ -19,26 +19,37 @@ package org.keycloak.examples.authenticator;
 
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.AuthenticationProcessor;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.authentication.authenticators.browser.AbstractUsernameFormAuthenticator;
+import org.keycloak.events.Details;
+import org.keycloak.events.Errors;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ModelDuplicateException;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.services.ServicesLogger;
 import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.services.messages.Messages;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.logging.Logger;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @@author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
  * @version $Revision: 1 $
  */
-public class PAMFormAuthenticator implements Authenticator {
+public class PAMFormAuthenticator extends AbstractUsernameFormAuthenticator implements Authenticator {
 
-    private static final Logger logger = Logger.getLogger(PAMFormAuthenticator.class.getSimpleName());
+    protected static ServicesLogger logger = ServicesLogger.ROOT_LOGGER;
 
     @Override
     public void action(AuthenticationFlowContext context) {
@@ -85,9 +96,54 @@ public class PAMFormAuthenticator implements Authenticator {
         logger.info("=====================================================");
 
         /* set to false for now, otherwise username/password will be validated */
-        return false;
+        String username = formData.getFirst(AuthenticationManager.FORM_USERNAME);
+        if (username == null) {
+            context.getEvent().error(Errors.USER_NOT_FOUND);
+            Response challengeResponse = invalidUser(context);
+            context.failureChallenge(AuthenticationFlowError.INVALID_USER, challengeResponse);
+            return false;
+        }
+        context.getEvent().detail(Details.USERNAME, username);
+        context.getClientSession().setNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME, username);
 
-//        context.success();
+        UserModel user = null;
+        try {
+            user = KeycloakModelUtils.findUserByNameOrEmail(context.getSession(), context.getRealm(), username);
+        } catch (ModelDuplicateException mde) {
+            logger.modelDuplicateException(mde);
+
+            // Could happen during federation import
+            if (mde.getDuplicateFieldName() != null && mde.getDuplicateFieldName().equals(UserModel.EMAIL)) {
+                setDuplicateUserChallenge(context, Errors.EMAIL_IN_USE, Messages.EMAIL_EXISTS, AuthenticationFlowError.INVALID_USER);
+            } else {
+                setDuplicateUserChallenge(context, Errors.USERNAME_IN_USE, Messages.USERNAME_EXISTS, AuthenticationFlowError.INVALID_USER);
+            }
+
+            return false;
+        }
+
+        if (invalidUser(context, user)){
+            return false;
+        }
+
+        if (!validatePasswordAndOTP(context, user, formData)){
+            return false;
+        }
+
+        if(!enabledUser(context, user)){
+            return false;
+        }
+
+        String rememberMe = formData.getFirst("rememberMe");
+        boolean remember = rememberMe != null && rememberMe.equalsIgnoreCase("on");
+        if (remember) {
+            context.getClientSession().setNote(Details.REMEMBER_ME, "true");
+            context.getEvent().detail(Details.REMEMBER_ME, "true");
+        } else {
+            context.getClientSession().removeNote(Details.REMEMBER_ME);
+        }
+        context.setUser(user);
+        return true;
     }
 
     //Intentionally changed to false
@@ -128,5 +184,36 @@ public class PAMFormAuthenticator implements Authenticator {
     @Override
     public void close() {
 
+    }
+
+    private boolean validatePasswordAndOTP(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
+
+        logger.info("=====================================================");
+        logger.info("validatePasswordAndOTP()");
+        logger.info("=====================================================");
+
+
+        List<UserCredentialModel> credentials = new LinkedList<>();
+        String password = inputData.getFirst(CredentialRepresentation.PASSWORD);
+        String totp = inputData.getFirst(CredentialRepresentation.TOTP);
+        credentials.add(UserCredentialModel.password(password));
+        credentials.add(UserCredentialModel.totp(totp));
+
+        logger.info("=====================================================");
+        logger.info("password: " + password);
+        logger.info("otp: " + totp);
+        logger.info("=====================================================");
+
+
+        boolean valid = context.getSession().users().validCredentials(context.getSession(), context.getRealm(), user, credentials);
+        if (!valid) {
+            context.getEvent().user(user);
+            context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
+            Response challengeResponse = invalidCredentials(context);
+            context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challengeResponse);
+            context.clearUser();
+            return false;
+        }
+        return true;
     }
 }

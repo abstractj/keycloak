@@ -19,21 +19,21 @@
 
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="first-factor" class="${properties.kcLabelClass!}">First factor or Password</label>
+                    <label for="password" class="${properties.kcLabelClass!}">First factor or Password</label>
                 </div>
 
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input id="first-factor" class="${properties.kcInputClass!}" name="first-factor" type="password" autocomplete="off" />
+                    <input id="password" class="${properties.kcInputClass!}" name="password" type="password" autocomplete="off" />
                 </div>
             </div>
 
             <div class="${properties.kcFormGroupClass!}">
                 <div class="${properties.kcLabelWrapperClass!}">
-                    <label for="second-factor" class="${properties.kcLabelClass!}">Second factor</label>
+                    <label for="totp" class="${properties.kcLabelClass!}">Second factor</label>
                 </div>
 
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input id="second-factor" class="${properties.kcInputClass!}" name="second-factor" type="password" autocomplete="off" />
+                    <input id="totp" class="${properties.kcInputClass!}" name="totp" type="password" autocomplete="off" />
                 </div>
             </div>
 
