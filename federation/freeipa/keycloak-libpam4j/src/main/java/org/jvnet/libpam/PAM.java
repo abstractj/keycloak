@@ -80,7 +80,7 @@ public class PAM {
                 Pointer m = libc.calloc(pam_response.SIZE,num_msg);
                 resp.setPointer(0,m);
 
-                for( int i=0; i<num_msg; i++ ) {
+                for (int i = 0; i < factors.length; i++) {
                     pam_message pm = new pam_message(msg.getPointer(POINTER_SIZE*i));
                     LOGGER.fine(pm.msg_style+":"+pm.msg);
                     if (pm.msg_style == PAM_PROMPT_ECHO_OFF) {
