@@ -25,6 +25,7 @@ import org.freedesktop.sssd.infopipe.User;
 import org.jboss.logging.Logger;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -93,5 +94,14 @@ public class Sssd {
         return attributes;
     }
 
-
+    public List<String> getUserGroups(){
+        List<String> userGroups = null;
+        try {
+            InfoPipe infoPipe = Sssd.infopipe();
+            userGroups = infoPipe.getUserGroups("emily");
+        } catch (Exception e) {
+            logger.error("Failed to retrieve user's groups from SSSD", e);
+        }
+        return userGroups;
+    }
 }

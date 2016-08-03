@@ -29,6 +29,7 @@ import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserFederationProvider;
 import org.keycloak.models.UserFederationProviderModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.services.managers.UserManager;
 import org.keycloak.sssd.Sssd;
 
@@ -104,15 +105,22 @@ public class SSSDFederationProvider implements UserFederationProvider {
     }
 
     protected UserModel importUserToKeycloak(RealmModel realm, String username) {
-        Map<String, Variant> sssdUser = new Sssd(username).getUserAttributes();
+        Sssd sssd = new Sssd(username);
+        Map<String, Variant> sssdUser = sssd.getUserAttributes();
         logger.debugf("Creating SSSD user: %s to local Keycloak storage", username);
         UserModel user = session.userStorage().addUser(realm, username);
         user.setEnabled(true);
         user.setEmail(Sssd.getRawAttribute(sssdUser.get("mail")));
         user.setFirstName(Sssd.getRawAttribute(sssdUser.get("givenname")));
         user.setLastName(Sssd.getRawAttribute(sssdUser.get("sn")));
+        for (String s : sssd.getUserGroups()) {
+            GroupModel group = KeycloakModelUtils.findGroupByPath(realm, "/" + s);
+            if (group == null) {
+                group = session.realms().createGroup(realm, s);
+            }
+            user.joinGroup(group);
+        }
         user.setFederationLink(model.getId());
-
         return validateAndProxy(realm, user);
     }
 
