@@ -17,19 +17,27 @@
 
 package org.keycloak.forms.account.freemarker.model;
 
+import org.keycloak.models.UserModel;
+
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
 public class PasswordBean {
 
     private boolean passwordSet;
+    private final UserModel user;
 
-    public PasswordBean(boolean passwordSet) {
+
+    public PasswordBean(boolean passwordSet, UserModel user) {
         this.passwordSet = passwordSet;
+        this.user = user;
     }
 
     public boolean isPasswordSet() {
         return passwordSet;
+    }
+    public boolean isReadOnly(){
+        return user.isReadOnly();
     }
 
 }

@@ -76,6 +76,8 @@ public class UserEntity {
     protected String email;
     @Column(name = "ENABLED")
     protected boolean enabled;
+    @Column(name = "READ_ONLY")
+    protected boolean readOnly;
     @Column(name = "TOTP")
     protected boolean totp;
     @Column(name = "EMAIL_VERIFIED")
@@ -159,6 +161,15 @@ public class UserEntity {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
 
     public String getEmailConstraint() {
         return emailConstraint;

@@ -112,6 +112,17 @@ public class UserAdapter extends AbstractMongoAdapter<MongoUserEntity> implement
     }
 
     @Override
+    public boolean isReadOnly() {
+        return user.isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        user.setReadOnly(readOnly);
+        updateUser();
+    }
+
+    @Override
     public String getFirstName() {
         return user.getFirstName();
     }

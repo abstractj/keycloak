@@ -34,6 +34,7 @@ public class UserEntity extends AbstractIdentifiableEntity {
     private boolean emailVerified;
     private boolean totp;
     private boolean enabled;
+    private boolean readOnly;
 
     private String realmId;
 
@@ -54,7 +55,7 @@ public class UserEntity extends AbstractIdentifiableEntity {
     public void setUsername(String username) {
         this.username = username;
     }
-    
+
     public Long getCreatedTimestamp() {
         return createdTimestamp;
     }
@@ -110,6 +111,14 @@ public class UserEntity extends AbstractIdentifiableEntity {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isReadOnly() {
+        return enabled;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public String getRealmId() {

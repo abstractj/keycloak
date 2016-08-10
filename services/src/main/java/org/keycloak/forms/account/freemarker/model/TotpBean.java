@@ -39,6 +39,7 @@ public class TotpBean {
     private final String totpSecretEncoded;
     private final String totpSecretQrCode;
     private final boolean enabled;
+    private final UserModel user;
 
     public TotpBean(KeycloakSession session, RealmModel realm, UserModel user) {
         this.enabled = session.users().configuredForCredentialType(realm.getOTPPolicy().getType(), realm, user);
@@ -46,6 +47,7 @@ public class TotpBean {
         this.totpSecret = HmacOTP.generateSecret(20);
         this.totpSecretEncoded = TotpUtils.encode(totpSecret);
         this.totpSecretQrCode = TotpUtils.qrCode(totpSecret, realm, user);
+        this.user = user;
     }
 
     public boolean isEnabled() {
@@ -64,5 +66,8 @@ public class TotpBean {
         return totpSecretQrCode;
     }
 
+    public boolean isReadOnly(){
+        return user.isReadOnly();
+    }
 }
 

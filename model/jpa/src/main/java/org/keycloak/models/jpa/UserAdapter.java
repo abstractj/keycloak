@@ -114,6 +114,16 @@ public class UserAdapter implements UserModel, JpaModel<UserEntity> {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return user.isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        user.setReadOnly(readOnly);
+    }
+
+    @Override
     public boolean isOtpEnabled() {
         return user.isTotp();
     }

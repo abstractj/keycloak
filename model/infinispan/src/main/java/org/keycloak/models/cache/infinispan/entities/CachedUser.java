@@ -46,6 +46,7 @@ public class CachedUser extends AbstractRevisioned implements InRealm  {
     private boolean emailVerified;
     private List<UserCredentialValueModel> credentials = new LinkedList<>();
     private boolean enabled;
+    private boolean readOnly;
     private boolean totp;
     private String federationLink;
     private String serviceAccountClientLink;
@@ -68,6 +69,7 @@ public class CachedUser extends AbstractRevisioned implements InRealm  {
         this.emailVerified = user.isEmailVerified();
         this.credentials.addAll(user.getCredentialsDirectly());
         this.enabled = user.isEnabled();
+        this.readOnly = user.isReadOnly();
         this.totp = user.isOtpEnabled();
         this.federationLink = user.getFederationLink();
         this.serviceAccountClientLink = user.getServiceAccountClientLink();
@@ -117,6 +119,10 @@ public class CachedUser extends AbstractRevisioned implements InRealm  {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
     public boolean isTotp() {

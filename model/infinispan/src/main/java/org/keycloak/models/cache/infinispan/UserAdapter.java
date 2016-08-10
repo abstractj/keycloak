@@ -114,6 +114,18 @@ public class UserAdapter implements UserModel {
     }
 
     @Override
+    public void setReadOnly(boolean readOnly) {
+        getDelegateForUpdate();
+        updated.setReadOnly(readOnly);
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        if (updated != null) return updated.isReadOnly();
+        return cached.isReadOnly();
+    }
+
+    @Override
     public void setSingleAttribute(String name, String value) {
         getDelegateForUpdate();
         updated.setSingleAttribute(name, value);

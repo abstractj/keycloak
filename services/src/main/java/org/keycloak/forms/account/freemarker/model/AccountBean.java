@@ -83,4 +83,8 @@ public class AccountBean {
         return attributes;
     }
 
+    public boolean isReadOnly(){
+        return user.isReadOnly();
+    }
+
 }

@@ -58,6 +58,10 @@ public interface UserModel extends RoleMapperModel {
 
     void setEnabled(boolean enabled);
 
+    void setReadOnly(boolean enabled);
+
+    boolean isReadOnly();
+
     /**
      * Set single value of specified attribute. Remove all other existing values
      *
@@ -128,6 +132,8 @@ public interface UserModel extends RoleMapperModel {
 
     String getServiceAccountClientLink();
     void setServiceAccountClientLink(String clientInternalId);
+
+
 
     public static enum RequiredAction {
         VERIFY_EMAIL, UPDATE_PROFILE, CONFIGURE_TOTP, UPDATE_PASSWORD

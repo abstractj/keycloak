@@ -78,6 +78,17 @@ public class UserMapStorage implements UserLookupProvider, UserStorageProvider, 
                 throw new RuntimeException("Unsupported");
             }
 
+            //TODO implement
+            @Override
+            public void setReadOnly(boolean enabled) {
+
+            }
+
+            @Override
+            public boolean isReadOnly() {
+                return false;
+            }
+
             @Override
             public void updateCredential(UserCredentialModel cred) {
                 if (cred.getType().equals(UserCredentialModel.PASSWORD)) {

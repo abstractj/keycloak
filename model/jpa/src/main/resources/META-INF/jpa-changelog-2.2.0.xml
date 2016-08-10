@@ -24,4 +24,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="bruno@abstractj.org" id="2.2.0">
+        <addColumn tableName="USER_ENTITY">
+            <column name="READ_ONLY" type="BOOLEAN" defaultValueBoolean="false"></column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

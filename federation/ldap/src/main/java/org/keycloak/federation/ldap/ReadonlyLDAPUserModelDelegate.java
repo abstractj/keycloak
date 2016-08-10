@@ -63,4 +63,9 @@ public class ReadonlyLDAPUserModelDelegate extends UserModelDelegate implements 
         throw new ModelReadOnlyException("Federated storage is not writable");
     }
 
+    @Override
+    public boolean isReadOnly(){
+        return true;
+    }
+
 }

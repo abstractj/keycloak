@@ -204,7 +204,7 @@ public class FreeMarkerAccountProvider implements AccountProvider {
                 attributes.put("advancedMsg", new AdvancedMessageFormatterMethod(locale, messagesBundle));
                 break;
             case PASSWORD:
-                attributes.put("password", new PasswordBean(passwordSet));
+                attributes.put("password", new PasswordBean(passwordSet, user));
         }
 
         try {

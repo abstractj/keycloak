@@ -71,6 +71,16 @@ public class UserModelDelegate implements UserModel {
     }
 
     @Override
+    public boolean isReadOnly() {
+        return delegate.isReadOnly();
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        delegate.setReadOnly(readOnly);
+    }
+
+    @Override
     public void setSingleAttribute(String name, String value) {
         delegate.setSingleAttribute(name, value);
     }

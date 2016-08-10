@@ -56,6 +56,17 @@ public class UserAdapter extends AbstractUserAdapterFederatedStorage {
 
     }
 
+    //TODO implement
+    @Override
+    public void setReadOnly(boolean enabled) {
+
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return false;
+    }
+
     @Override
     public void setEmail(String email) {
         entity.setEmail(email);

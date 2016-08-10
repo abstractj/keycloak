@@ -30,7 +30,7 @@
             </div>
 
             <div class="col-sm-10 col-md-10">
-                <input type="text" class="form-control" id="email" name="email" autofocus value="${(account.email!'')?html}"/>
+                <input type="text" class="form-control" id="email" name="email" autofocus <#if account.readOnly>disabled="disabled"</#if> value="${(account.email!'')?html}"/>
             </div>
         </div>
 
@@ -40,7 +40,7 @@
             </div>
 
             <div class="col-sm-10 col-md-10">
-                <input type="text" class="form-control" id="firstName" name="firstName" value="${(account.firstName!'')?html}"/>
+                <input type="text" class="form-control" id="firstName" name="firstName" <#if account.readOnly>disabled="disabled"</#if> value="${(account.firstName!'')?html}"/>
             </div>
         </div>
 
@@ -50,7 +50,7 @@
             </div>
 
             <div class="col-sm-10 col-md-10">
-                <input type="text" class="form-control" id="lastName" name="lastName" value="${(account.lastName!'')?html}"/>
+                <input type="text" class="form-control" id="lastName" name="lastName" <#if account.readOnly>disabled="disabled"</#if> value="${(account.lastName!'')?html}"/>
             </div>
         </div>
 

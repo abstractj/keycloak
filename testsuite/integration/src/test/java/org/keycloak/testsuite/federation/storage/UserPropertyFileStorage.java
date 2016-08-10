@@ -77,12 +77,32 @@ public class UserPropertyFileStorage implements UserLookupProvider, UserStorageP
                 public void setUsername(String username) {
                     throw new RuntimeException("Unsupported");
                 }
+
+                @Override
+                public void setReadOnly(boolean enabled) {
+
+                }
+
+                @Override
+                public boolean isReadOnly() {
+                    return false;
+                }
             };
         } else {
             return new AbstractUserAdapter(session, realm, model) {
                 @Override
                 public String getUsername() {
                     return username;
+                }
+
+                @Override
+                public void setReadOnly(boolean enabled) {
+
+                }
+
+                @Override
+                public boolean isReadOnly() {
+                    return false;
                 }
             };
         }
