@@ -373,6 +373,15 @@ public class RepresentationToModel {
         if(rep.getDefaultLocale() != null){
             newRealm.setDefaultLocale(rep.getDefaultLocale());
         }
+        
+        // import attributes
+
+        if (rep.getAttributes() != null) {
+            for (Map.Entry<String, String> attr : rep.getAttributes().entrySet()) {
+                newRealm.setAttribute(attr.getKey(), attr.getValue());
+            }
+        }
+
     }
 
     protected static void importComponents(RealmModel newRealm, MultivaluedHashMap<String, ComponentExportRepresentation> components, String parentId) {
@@ -556,6 +565,19 @@ public class RepresentationToModel {
         if (newRealm.getFlowByAlias(DefaultAuthenticationFlows.FIRST_BROKER_LOGIN_FLOW) == null) {
             DefaultAuthenticationFlows.firstBrokerLoginFlow(newRealm, true);
         }
+
+        // Added in 2.2
+        String defaultProvider = null;
+        if (rep.getIdentityProviders() != null) {
+            for (IdentityProviderRepresentation i : rep.getIdentityProviders()) {
+                if (i.isEnabled() && i.isAuthenticateByDefault()) {
+                    defaultProvider = i.getProviderId();
+                    break;
+                }
+            }
+        }
+
+        DefaultAuthenticationFlows.addIdentityProviderAuthenticator(newRealm, defaultProvider);
     }
 
     private static void convertDeprecatedSocialProviders(RealmRepresentation rep) {
@@ -719,6 +741,21 @@ public class RepresentationToModel {
         if (rep.getRealm() != null) {
             renameRealm(realm, rep.getRealm());
         }
+
+        // Import attributes first, so the stuff saved directly on representation (displayName, bruteForce etc) has bigger priority
+        if (rep.getAttributes() != null) {
+            Set<String> attrsToRemove = new HashSet<>(realm.getAttributes().keySet());
+            attrsToRemove.removeAll(rep.getAttributes().keySet());
+
+            for (Map.Entry<String, String> entry : rep.getAttributes().entrySet()) {
+                realm.setAttribute(entry.getKey(), entry.getValue());
+            }
+
+            for (String attr : attrsToRemove) {
+                realm.removeAttribute(attr);
+            }
+        }
+
         if (rep.getDisplayName() != null) realm.setDisplayName(rep.getDisplayName());
         if (rep.getDisplayNameHtml() != null) realm.setDisplayNameHtml(rep.getDisplayNameHtml());
         if (rep.isEnabled() != null) realm.setEnabled(rep.isEnabled());

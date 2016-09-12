@@ -13,6 +13,7 @@
 ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ~ See the License for the specific language governing permissions and
 ~ limitations under the License.
+
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -689,13 +690,23 @@
             <!-- Dependencies for RHEL IdM -->
             <dependency>
                 <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-dbus-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-sssd-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-sssd-federation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
-                <version>${jna.version}</version>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-libpam4j</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
@@ -1071,6 +1082,18 @@
                 <artifactId>keycloak-saml-wildfly-modules</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-fuse-adapter-dist</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-fuse-adapter-dist</artifactId>
+                <version>${project.version}</version>
+                <type>tar.gz</type>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>

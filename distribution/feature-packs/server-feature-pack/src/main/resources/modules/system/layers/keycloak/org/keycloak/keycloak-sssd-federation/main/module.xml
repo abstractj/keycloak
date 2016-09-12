@@ -28,5 +28,8 @@
         <module name="org.jboss.logging"/>
         <module name="org.keycloak.keycloak-core" />
         <module name="org.keycloak.keycloak-server-spi" />
+        <module name="org.keycloak.keycloak-libpam4j" />
+        <module name="org.keycloak.keycloak-dbus-java" />
+        <module name="org.keycloak.keycloak-sssd-api" />
     </dependencies>
 </module>
