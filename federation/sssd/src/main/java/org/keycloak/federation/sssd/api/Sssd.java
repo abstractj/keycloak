@@ -113,7 +113,7 @@ public class Sssd {
     public static boolean isAvailable(){
         boolean sssdAvailable = false;
         try {
-            if (LibraryLoader.load().succeed()) {
+            if (LibraryLoader.load()) {
                 DBusConnection connection = DBusConnection.getConnection(DBusConnection.SYSTEM);
                 DBus dbus = connection.getRemoteObject(DBus.BUSNAME, DBus.OBJECTPATH, DBus.class);
                 sssdAvailable = Arrays.asList(dbus.ListNames()).contains(InfoPipe.BUSNAME);
