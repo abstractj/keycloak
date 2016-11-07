@@ -18,6 +18,9 @@
 package org.keycloak.authentication.authenticators.browser;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 
@@ -265,5 +268,23 @@ public class ConditionalOtpFormAuthenticator extends OTPFormAuthenticator {
         UserModel user = context.getUser();
 
         return hasRole(user.getRoleMappings(), role);
+    }
+
+    @Override
+    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
+        if(isOTPRequired(realm, user) && !user.getRequiredActions().contains(UserModel.RequiredAction.CONFIGURE_TOTP.name())) {
+            user.addRequiredAction(UserModel.RequiredAction.CONFIGURE_TOTP.name());
+        }
+    }
+
+    private boolean isOTPRequired(RealmModel realm, UserModel user) {
+        for (AuthenticatorConfigModel configModel : realm.getAuthenticatorConfigs()) {
+            String config = configModel.getConfig().get(FORCE_OTP_ROLE);
+            if (config != null) {
+                RoleModel role = getRoleFromString(realm, config);
+                return hasRole(user.getRoleMappings(), role);
+            }
+        }
+        return false;
     }
 }
