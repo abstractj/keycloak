@@ -25,6 +25,7 @@ import org.keycloak.services.ServicesLogger;
 import org.keycloak.truststore.HostnameVerificationPolicy;
 import org.keycloak.truststore.JSSETruststoreConfigurator;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
@@ -91,6 +92,9 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
             props.setProperty("mail.smtp.connectiontimeout", "10000");
 
             String from = config.get("from");
+            String fromDisplayName = config.get("fromDisplayName");
+            String replyTo = config.get("replyTo");
+            String replyToDisplayName = config.get("replyToDisplayName");
 
             Session session = Session.getInstance(props);
 
@@ -109,7 +113,18 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
             }
 
             MimeMessage msg = new MimeMessage(session);
+
+            if (fromDisplayName != null) {
+                from = String.format("\"%s\"<%s>", fromDisplayName, from);
+            }
             msg.setFrom(new InternetAddress(from));
+
+            if (replyTo != null) {
+                if (replyToDisplayName != null) {
+                    replyTo = String.format("\"%s\"<%s>", replyToDisplayName, replyTo);
+                }
+                msg.setReplyTo(new Address[]{new InternetAddress(replyTo)});
+            }
             msg.setHeader("To", address);
             msg.setSubject(subject, "utf-8");
             msg.setContent(multipart);
