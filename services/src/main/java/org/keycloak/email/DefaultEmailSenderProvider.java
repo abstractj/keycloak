@@ -17,6 +17,7 @@
 
 package org.keycloak.email;
 
+import com.sun.mail.smtp.SMTPMessage;
 import org.jboss.logging.Logger;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -95,6 +96,7 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
             String fromDisplayName = config.get("fromDisplayName");
             String replyTo = config.get("replyTo");
             String replyToDisplayName = config.get("replyToDisplayName");
+            String envelopeFrom = config.get("envelopeFrom");
 
             Session session = Session.getInstance(props);
 
@@ -112,7 +114,7 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
                 multipart.addBodyPart(htmlPart);
             }
 
-            MimeMessage msg = new MimeMessage(session);
+            SMTPMessage msg = new SMTPMessage(session);
 
             if (fromDisplayName != null) {
                 from = String.format("\"%s\"<%s>", fromDisplayName, from);
@@ -125,6 +127,11 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
                 }
                 msg.setReplyTo(new Address[]{new InternetAddress(replyTo)});
             }
+
+            if (envelopeFrom != null){
+                msg.setEnvelopeFrom(envelopeFrom);
+            }
+
             msg.setHeader("To", address);
             msg.setSubject(subject, "utf-8");
             msg.setContent(multipart);

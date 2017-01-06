@@ -44,6 +44,13 @@
             </div>
         </div>
         <div class="form-group clearfix">
+            <label class="col-md-2 control-label" for="smtpEnvelopeFrom">{{:: 'envelopeFrom' | translate}}</label>
+            <div class="col-md-6">
+                <input class="form-control" id="smtpEnvelopeFrom" type="email" ng-model="realm.smtpServer.envelopeFrom" placeholder="{{:: 'sender-envelope-email-addr' | translate}}">
+            </div>
+            <kc-tooltip>{{:: 'envelopeFrom.tooltip' | translate}}</kc-tooltip>
+        </div>
+        <div class="form-group clearfix">
             <label class="col-md-2 control-label" for="smtpSSL">{{:: 'enable-ssl' | translate}}</label>
             <div class="col-md-6">
                 <input ng-model="realm.smtpServer.ssl" name="smtpSSL" id="smtpSSL" onoffswitch on-text="{{:: 'onText' | translate}}" off-text="{{:: 'offText' | translate}}"/>
