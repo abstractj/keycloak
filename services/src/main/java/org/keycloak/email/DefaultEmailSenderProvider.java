@@ -31,11 +31,12 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -115,19 +116,12 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
             }
 
             SMTPMessage msg = new SMTPMessage(session);
+            msg.setFrom(toInternetAddress(from, fromDisplayName));
 
-            if (fromDisplayName != null) {
-                from = String.format("\"%s\"<%s>", fromDisplayName, from);
-            }
-            msg.setFrom(new InternetAddress(from));
-
+            msg.setReplyTo(new Address[]{toInternetAddress(from, fromDisplayName)});
             if (replyTo != null) {
-                if (replyToDisplayName != null) {
-                    replyTo = String.format("\"%s\"<%s>", replyToDisplayName, replyTo);
-                }
-                msg.setReplyTo(new Address[]{new InternetAddress(replyTo)});
+                msg.setReplyTo(new Address[]{toInternetAddress(replyTo, replyToDisplayName)});
             }
-
             if (envelopeFrom != null){
                 msg.setEnvelopeFrom(envelopeFrom);
             }
@@ -157,6 +151,13 @@ public class DefaultEmailSenderProvider implements EmailSenderProvider {
                 }
             }
         }
+    }
+
+    protected InternetAddress toInternetAddress(String email, String displayName) throws UnsupportedEncodingException, AddressException {
+        if (displayName == null || "".equals(displayName.trim())) {
+            return new InternetAddress(email);
+        }
+        return new InternetAddress(email, displayName, "utf-8");
     }
     
     protected String retrieveEmailAddress(UserModel user) {
