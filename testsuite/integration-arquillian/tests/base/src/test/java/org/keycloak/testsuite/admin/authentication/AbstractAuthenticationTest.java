@@ -33,7 +33,7 @@ import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.admin.ApiUtil;
 import org.keycloak.testsuite.util.AdminEventPaths;
 import org.keycloak.testsuite.util.AssertAdminEvents;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.RealmBuilder;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;

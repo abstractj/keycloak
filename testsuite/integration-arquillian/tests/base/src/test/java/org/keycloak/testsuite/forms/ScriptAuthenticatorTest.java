@@ -33,10 +33,10 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.AssertEvents;
 import org.keycloak.testsuite.ProfileAssume;
 import org.keycloak.testsuite.pages.LoginPage;
-import org.keycloak.testsuite.util.ExecutionBuilder;
-import org.keycloak.testsuite.util.FlowBuilder;
-import org.keycloak.testsuite.util.RealmBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.ExecutionBuilder;
+import org.keycloak.builders.FlowBuilder;
+import org.keycloak.builders.RealmBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;

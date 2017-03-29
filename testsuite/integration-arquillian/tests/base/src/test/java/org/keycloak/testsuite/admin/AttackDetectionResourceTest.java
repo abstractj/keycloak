@@ -25,7 +25,7 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.testsuite.util.AdminEventPaths;
 import org.keycloak.testsuite.util.OAuthClient;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import java.util.Map;
 

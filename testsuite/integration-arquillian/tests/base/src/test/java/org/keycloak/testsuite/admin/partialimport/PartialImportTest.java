@@ -41,7 +41,7 @@ import org.keycloak.testsuite.AbstractAuthTest;
 import org.keycloak.testsuite.Assert;
 import org.keycloak.testsuite.admin.ApiUtil;
 import org.keycloak.testsuite.util.AssertAdminEvents;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.RealmBuilder;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;

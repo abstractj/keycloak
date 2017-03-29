@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.keycloak.OAuth2Constants;
+import org.keycloak.builders.RealmBuilder;
 import org.keycloak.common.util.Time;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.testsuite.AbstractKeycloakTest;

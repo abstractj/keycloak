@@ -22,7 +22,7 @@ import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.Assert;
 import org.keycloak.testsuite.client.resources.TestExampleCompanyResource;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.RealmBuilder;
 
 import java.util.HashSet;
 import java.util.List;

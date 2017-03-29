@@ -17,7 +17,6 @@
 package org.keycloak.testsuite.oauth;
 
 import org.jboss.arquillian.graphene.page.Page;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +41,7 @@ import org.keycloak.testsuite.pages.OAuthGrantPage;
 import org.keycloak.testsuite.util.ClientManager;
 import org.keycloak.testsuite.util.OAuthClient;
 import org.keycloak.testsuite.util.ProtocolMapperUtil;
-import org.keycloak.testsuite.util.RoleBuilder;
+import org.keycloak.builders.RoleBuilder;
 import org.openqa.selenium.By;
 
 import java.util.Collections;

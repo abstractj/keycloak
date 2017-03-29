@@ -39,12 +39,12 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.representations.idm.UserSessionRepresentation;
 import org.keycloak.testsuite.Assert;
 import org.keycloak.testsuite.util.AdminEventPaths;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.CredentialBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.CredentialBuilder;
 import org.keycloak.testsuite.util.OAuthClient;
 import org.keycloak.testsuite.util.OAuthClient.AccessTokenResponse;
-import org.keycloak.testsuite.util.RoleBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.RoleBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;

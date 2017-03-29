@@ -30,12 +30,12 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.testsuite.Assert;
 import org.keycloak.testsuite.admin.ApiUtil;
 import org.keycloak.testsuite.pages.LoginPage;
-import org.keycloak.testsuite.util.ClientBuilder;
+import org.keycloak.builders.ClientBuilder;
 import org.keycloak.testsuite.util.OAuthClient.AccessTokenResponse;
-import org.keycloak.testsuite.util.RealmBuilder;
-import org.keycloak.testsuite.util.RoleBuilder;
-import org.keycloak.testsuite.util.RolesBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.RealmBuilder;
+import org.keycloak.builders.RoleBuilder;
+import org.keycloak.builders.RolesBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import java.util.Collections;
 import java.util.LinkedList;

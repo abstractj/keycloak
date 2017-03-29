@@ -7,7 +7,7 @@ import org.keycloak.saml.common.exceptions.ConfigurationException;
 import org.keycloak.saml.common.exceptions.ParsingException;
 import org.keycloak.saml.common.exceptions.ProcessingException;
 import org.keycloak.saml.processing.core.saml.v2.common.SAMLDocumentHolder;
-import org.keycloak.testsuite.util.ClientBuilder;
+import org.keycloak.builders.ClientBuilder;
 import org.keycloak.testsuite.util.IOUtil;
 import org.keycloak.testsuite.util.SamlClient;
 

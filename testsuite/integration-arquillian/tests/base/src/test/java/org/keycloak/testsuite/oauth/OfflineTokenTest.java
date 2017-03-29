@@ -47,13 +47,13 @@ import org.keycloak.testsuite.admin.ApiUtil;
 import org.keycloak.testsuite.arquillian.AuthServerTestEnricher;
 import org.keycloak.testsuite.auth.page.AuthRealm;
 import org.keycloak.testsuite.pages.LoginPage;
-import org.keycloak.testsuite.util.ClientBuilder;
+import org.keycloak.builders.ClientBuilder;
 import org.keycloak.testsuite.util.ClientManager;
 import org.keycloak.testsuite.util.OAuthClient;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.RealmBuilder;
 import org.keycloak.testsuite.util.RealmManager;
-import org.keycloak.testsuite.util.RoleBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.RoleBuilder;
+import org.keycloak.builders.UserBuilder;
 import org.keycloak.util.TokenUtil;
 
 import java.util.Collections;

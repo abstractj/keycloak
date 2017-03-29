@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.keycloak.testsuite.util;
+package org.keycloak.builders;
 
 import java.util.HashMap;
 import org.keycloak.representations.idm.IdentityProviderRepresentation;

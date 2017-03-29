@@ -38,10 +38,10 @@ import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.AssertEvents;
 import org.keycloak.testsuite.arquillian.AuthServerTestEnricher;
 import org.keycloak.testsuite.auth.page.AuthRealm;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.CredentialBuilder;
-import org.keycloak.testsuite.util.RealmBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.CredentialBuilder;
+import org.keycloak.builders.RealmBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;

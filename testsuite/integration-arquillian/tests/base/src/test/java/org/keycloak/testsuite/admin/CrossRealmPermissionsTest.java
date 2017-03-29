@@ -27,9 +27,9 @@ import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.arquillian.AuthServerTestEnricher;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.RealmBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.RealmBuilder;
+import org.keycloak.builders.UserBuilder;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;

@@ -21,8 +21,8 @@ import org.keycloak.services.clientregistration.policy.RegistrationAuth;
 import org.keycloak.services.clientregistration.policy.impl.TrustedHostClientRegistrationPolicyFactory;
 import org.keycloak.testsuite.cli.AbstractCliTest;
 import org.keycloak.testsuite.cli.KcRegExec;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.UserBuilder;
 import org.keycloak.util.JsonSerialization;
 
 import java.io.File;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.keycloak.testsuite.util;
+package org.keycloak.builders;
 
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation.Composites;

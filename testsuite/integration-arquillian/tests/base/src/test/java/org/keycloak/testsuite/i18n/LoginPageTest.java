@@ -29,7 +29,7 @@ import org.keycloak.testsuite.pages.LoginPage;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.graphene.page.Page;
 import org.keycloak.testsuite.ProfileAssume;
-import org.keycloak.testsuite.util.IdentityProviderBuilder;
+import org.keycloak.builders.IdentityProviderBuilder;
 
 /**
  * @author <a href="mailto:gerbermichi@me.com">Michael Gerber</a>

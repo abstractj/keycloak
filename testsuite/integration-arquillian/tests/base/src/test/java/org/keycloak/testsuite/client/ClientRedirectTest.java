@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.testsuite.AbstractTestRealmKeycloakTest;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.RealmBuilder;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.HttpHeaders;

@@ -34,7 +34,7 @@ import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.AssertEvents;
 import org.keycloak.testsuite.util.ClientManager;
 import org.keycloak.testsuite.util.OAuthClient;
-import org.keycloak.testsuite.util.RealmBuilder;
+import org.keycloak.builders.RealmBuilder;
 import org.keycloak.testsuite.util.RealmManager;
 import org.keycloak.util.BasicAuthHelper;
 

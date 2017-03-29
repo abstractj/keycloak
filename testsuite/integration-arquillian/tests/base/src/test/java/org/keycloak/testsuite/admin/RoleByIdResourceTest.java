@@ -25,8 +25,8 @@ import org.keycloak.events.admin.ResourceType;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.testsuite.Assert;
 import org.keycloak.testsuite.util.AdminEventPaths;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.RoleBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.RoleBuilder;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;

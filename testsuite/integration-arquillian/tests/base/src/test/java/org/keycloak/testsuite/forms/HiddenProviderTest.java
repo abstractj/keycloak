@@ -24,7 +24,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.testsuite.AbstractTestRealmKeycloakTest;
 import org.keycloak.testsuite.pages.LoginPage;
-import org.keycloak.testsuite.util.IdentityProviderBuilder;
+import org.keycloak.builders.IdentityProviderBuilder;
 
 public class HiddenProviderTest extends AbstractTestRealmKeycloakTest {
 

@@ -37,10 +37,10 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.testsuite.admin.ApiUtil;
 import org.keycloak.testsuite.util.AdminEventPaths;
-import org.keycloak.testsuite.util.ClientBuilder;
-import org.keycloak.testsuite.util.RoleBuilder;
+import org.keycloak.builders.ClientBuilder;
+import org.keycloak.builders.RoleBuilder;
 import org.keycloak.testsuite.util.URLAssert;
-import org.keycloak.testsuite.util.UserBuilder;
+import org.keycloak.builders.UserBuilder;
 import org.keycloak.util.JsonSerialization;
 
 import javax.ws.rs.NotFoundException;
@@ -62,7 +62,7 @@ import org.keycloak.models.AdminRoles;
 import static org.keycloak.testsuite.Assert.assertNames;
 import org.keycloak.testsuite.arquillian.AuthServerTestEnricher;
 import org.keycloak.testsuite.auth.page.AuthRealm;
-import org.keycloak.testsuite.util.GroupBuilder;
+import org.keycloak.builders.GroupBuilder;
 
 /**
  * @author <a href="mailto:mstrukel@redhat.com">Marko Strukelj</a>
