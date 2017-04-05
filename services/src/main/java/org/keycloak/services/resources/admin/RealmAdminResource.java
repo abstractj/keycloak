@@ -26,6 +26,7 @@ import org.keycloak.KeyPairVerifier;
 import org.keycloak.common.ClientConnection;
 import org.keycloak.common.VerificationException;
 import org.keycloak.common.util.PemUtils;
+import org.keycloak.email.EmailException;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventQuery;
 import org.keycloak.events.EventStoreProvider;
@@ -58,7 +59,6 @@ import org.keycloak.representations.adapters.action.GlobalRequestResult;
 import org.keycloak.representations.idm.AdminEventRepresentation;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ComponentRepresentation;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.EventRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.PartialImportRepresentation;
@@ -69,6 +69,7 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.LDAPConnectionTestManager;
 import org.keycloak.services.managers.RealmManager;
 import org.keycloak.services.managers.ResourceAdminManager;
+import org.keycloak.services.managers.SMTPConnectionTestManager;
 import org.keycloak.services.managers.UserStorageSyncManager;
 import org.keycloak.services.resources.admin.RealmAuth.Resource;
 import org.keycloak.storage.UserStorageProviderModel;
@@ -761,6 +762,23 @@ public class RealmAdminResource {
 
         boolean result = new LDAPConnectionTestManager().testLDAP(action, connectionUrl, bindDn, bindCredential, useTruststoreSpi, connectionTimeout);
         return result ? Response.noContent().build() : ErrorResponse.error("LDAP test error", Response.Status.BAD_REQUEST);
+    }
+
+    /**
+     * Test SMTP connection
+     *
+     * @return
+     */
+    @Path("testSMTPConnection")
+    @GET
+    @NoCache
+    public Response testSMTPConnection(@QueryParam("host") String host, @QueryParam("port") String port,
+                                       @QueryParam("from") String from, @QueryParam("auth") String authEnabled,
+                                       @QueryParam("ssl") String ssl, @QueryParam("starttls") String starttls,
+                                       @QueryParam("username") String username, @QueryParam("password") String password) throws EmailException {
+
+        boolean result = new SMTPConnectionTestManager(realm, session, auth).testSMTP(host, port, from, authEnabled, ssl, starttls, username, password);
+        return result ? Response.noContent().build() : ErrorResponse.error("SMTP test error.", Response.Status.BAD_REQUEST);
     }
 
     @Path("identity-provider")

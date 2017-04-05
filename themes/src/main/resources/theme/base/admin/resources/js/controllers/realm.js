@@ -1405,7 +1405,7 @@ module.controller('RoleDetailCtrl', function($scope, realm, role, roles, clients
         $http, $location, Notifications, Dialog);
 });
 
-module.controller('RealmSMTPSettingsCtrl', function($scope, Current, Realm, realm, $http, $location, Dialog, Notifications) {
+module.controller('RealmSMTPSettingsCtrl', function($scope, Current, Realm, realm, $http, $location, Dialog, Notifications, RealmSMTPConnectionTester) {
     console.log('RealmSMTPSettingsCtrl');
 
     var booleanSmtpAtts = ["auth","ssl","starttls"];
@@ -1438,6 +1438,28 @@ module.controller('RealmSMTPSettingsCtrl', function($scope, Current, Realm, real
     $scope.reset = function() {
         $scope.realm = angular.copy(oldCopy);
         $scope.changed = false;
+    };
+
+    var initSMTPTest = function() {
+        return {
+            realm: $scope.realm.realm,
+            host: realm.smtpServer.host,
+            port: realm.smtpServer.port,
+            from: realm.smtpServer.from,
+            auth: realm.smtpServer.auth,
+            ssl: realm.smtpServer.ssl,
+            starttls: realm.smtpServer.starttls,
+            username: realm.smtpServer.user,
+            password: realm.smtpServer.password
+        };
+    };
+
+    $scope.testConnection = function() {
+        RealmSMTPConnectionTester.get(initSMTPTest(), function() {
+            Notifications.success("SMTP connection successful. E-mail was sent!");
+        }, function() {
+            Notifications.error("Error when trying to connect to SMTP server. See server.log for details.");
+        });
     };
 
     /* Convert string attributes containing a boolean to actual boolean type + convert an integer string (port) to integer. */

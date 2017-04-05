@@ -179,6 +179,14 @@ public interface RealmResource {
                                 @QueryParam("bindDn") String bindDn, @QueryParam("bindCredential") String bindCredential,
                                 @QueryParam("useTruststoreSpi") String useTruststoreSpi, @QueryParam("connectionTimeout") String connectionTimeout);
 
+    @Path("testSMTPConnection")
+    @GET
+    @NoCache
+    Response testSMTPConnection(@QueryParam("host") String host, @QueryParam("port") String port,
+                                @QueryParam("from") String from, @QueryParam("auth") String authEnabled,
+                                @QueryParam("ssl") String ssl, @QueryParam("starttls") String starttls,
+                                @QueryParam("username") String username, @QueryParam("password") String password);
+
     @Path("clear-realm-cache")
     @POST
     void clearRealmCache();
