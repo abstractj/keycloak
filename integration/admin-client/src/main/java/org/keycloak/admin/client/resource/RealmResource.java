@@ -38,6 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -182,10 +183,7 @@ public interface RealmResource {
     @Path("testSMTPConnection")
     @GET
     @NoCache
-    Response testSMTPConnection(@QueryParam("host") String host, @QueryParam("port") String port,
-                                @QueryParam("from") String from, @QueryParam("auth") String authEnabled,
-                                @QueryParam("ssl") String ssl, @QueryParam("starttls") String starttls,
-                                @QueryParam("username") String username, @QueryParam("password") String password);
+    Response testSMTPConnection(@QueryParam("settings") String settings) throws IOException;
 
     @Path("clear-realm-cache")
     @POST

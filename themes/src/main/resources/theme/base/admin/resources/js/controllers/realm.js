@@ -1443,22 +1443,19 @@ module.controller('RealmSMTPSettingsCtrl', function($scope, Current, Realm, real
     var initSMTPTest = function() {
         return {
             realm: $scope.realm.realm,
-            host: realm.smtpServer.host,
-            port: realm.smtpServer.port,
-            from: realm.smtpServer.from,
-            auth: realm.smtpServer.auth,
-            ssl: realm.smtpServer.ssl,
-            starttls: realm.smtpServer.starttls,
-            username: realm.smtpServer.user,
-            password: realm.smtpServer.password
+            settings: realm.smtpServer
         };
     };
 
     $scope.testConnection = function() {
         RealmSMTPConnectionTester.get(initSMTPTest(), function() {
             Notifications.success("SMTP connection successful. E-mail was sent!");
-        }, function() {
-            Notifications.error("Error when trying to connect to SMTP server. See server.log for details.");
+        }, function(errorResponse) {
+            if (error.data.errorMessage) {
+                Notifications.error(error.data.errorMessage);
+            } else {
+                Notifications.error('Unexpected error during SMTP validation');
+            }
         });
     };
 

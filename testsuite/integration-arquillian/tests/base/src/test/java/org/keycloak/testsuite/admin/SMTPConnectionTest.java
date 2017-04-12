@@ -27,14 +27,15 @@ import org.keycloak.testsuite.AbstractKeycloakTest;
 import org.keycloak.testsuite.util.GreenMailRule;
 import org.keycloak.testsuite.util.UserBuilder;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.keycloak.util.JsonSerialization.writeValueAsPrettyString;
 
 /**
  * @author <a href="mailto:bruno@abstractj.org">Bruno Oliveira</a>
@@ -57,33 +58,47 @@ public class SMTPConnectionTest extends AbstractKeycloakTest {
         realm.users().get(user.getId()).update(user);
     }
 
+    private String settings(String host, String port, String from, String auth, String ssl, String starttls,
+                            String username, String password) throws Exception {
+        Map<String, String> config = new HashMap<>();
+        config.put("host", host);
+        config.put("port", port);
+        config.put("from", from);
+        config.put("auth", auth);
+        config.put("ssl", ssl);
+        config.put("starttls", starttls);
+        config.put("user", username);
+        config.put("password", password);
+        return writeValueAsPrettyString(config);
+    }
+
     @Test
-    public void testWithEmptySettings() {
-        Response response = realm.testSMTPConnection(null, null, null, null, null, null,
-                null, null);
+    public void testWithEmptySettings() throws Exception {
+        Response response = realm.testSMTPConnection(settings(null, null, null, null, null, null,
+                null, null));
         assertStatus(response, 400);
     }
 
     @Test
-    public void testWithProperSettings() throws IOException, MessagingException {
-        Response response = realm.testSMTPConnection("127.0.0.1", "3025", "auto@keycloak.org", null, null, null,
-                null, null);
+    public void testWithProperSettings() throws Exception {
+        Response response = realm.testSMTPConnection(settings("127.0.0.1", "3025", "auto@keycloak.org", null, null, null,
+                null, null));
         assertStatus(response, 204);
         assertMailReceived();
     }
 
     @Test
-    public void testWithAuthEnabledCredentialsEmpty() throws IOException, MessagingException {
-        Response response = realm.testSMTPConnection("127.0.0.1", "3025", "auto@keycloak.org", "true", null, null,
-                null, null);
+    public void testWithAuthEnabledCredentialsEmpty() throws Exception {
+        Response response = realm.testSMTPConnection(settings("127.0.0.1", "3025", "auto@keycloak.org", "true", null, null,
+                null, null));
         assertStatus(response, 400);
     }
 
     @Test
-    public void testWithAuthEnabledValidCredentials() throws IOException, MessagingException {
+    public void testWithAuthEnabledValidCredentials() throws Exception {
         greenMailRule.credentials("admin@localhost", "admin");
-        Response response = realm.testSMTPConnection("127.0.0.1", "3025", "auto@keycloak.org", "true", null, null,
-                "admin@localhost", "admin");
+        Response response = realm.testSMTPConnection(settings("127.0.0.1", "3025", "auto@keycloak.org", "true", null, null,
+                "admin@localhost", "admin"));
         assertStatus(response, 204);
     }
 

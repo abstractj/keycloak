@@ -25,7 +25,6 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.services.resources.admin.RealmAuth;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -44,23 +43,12 @@ public class SMTPConnectionTestManager {
         this.user = auth.getAuth().getUser();
     }
 
-    public boolean testSMTP(String host, String port, String from, String auth, String ssl, String starttls,
-                            String username, String password) {
+    public boolean testSMTP(Map<String, String> config) {
 
         if (user.getEmail() == null) {
             logger.errorf("%s e-mail is empty. Please provide a valid e-mail.", user.getUsername());
             return false;
         }
-
-        Map<String, String> config = new HashMap<>();
-        config.put("host", host);
-        config.put("port", port);
-        config.put("from", from);
-        config.put("auth", auth);
-        config.put("ssl", ssl);
-        config.put("starttls", starttls);
-        config.put("user", username);
-        config.put("password", password);
 
         realm.setSmtpConfig(config);
 
