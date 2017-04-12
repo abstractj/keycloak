@@ -76,7 +76,7 @@ public class SMTPConnectionTest extends AbstractKeycloakTest {
     public void testWithEmptySettings() throws Exception {
         Response response = realm.testSMTPConnection(settings(null, null, null, null, null, null,
                 null, null));
-        assertStatus(response, 400);
+        assertStatus(response, 500);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class SMTPConnectionTest extends AbstractKeycloakTest {
     public void testWithAuthEnabledCredentialsEmpty() throws Exception {
         Response response = realm.testSMTPConnection(settings("127.0.0.1", "3025", "auto@keycloak.org", "true", null, null,
                 null, null));
-        assertStatus(response, 400);
+        assertStatus(response, 500);
     }
 
     @Test
