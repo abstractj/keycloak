@@ -53,10 +53,9 @@ public interface EmailTemplateProvider extends Provider {
      *
      * @param config
      * @param user
-     * @param realm
      * @throws EmailException
      */
-    public void sendSmtpTestEmail(Map<String, String> config, UserModel user, RealmModel realm) throws EmailException;
+    public void sendSmtpTestEmail(Map<String, String> config, UserModel user) throws EmailException;
 
     /**
      * Send to confirm that user wants to link his account with identity broker link

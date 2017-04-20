@@ -108,7 +108,7 @@ public class FreeMarkerEmailTemplateProvider implements EmailTemplateProvider {
     }
 
     @Override
-    public void sendSmtpTestEmail(Map<String, String> config, UserModel user, RealmModel realm) throws EmailException {
+    public void sendSmtpTestEmail(Map<String, String> config, UserModel user) throws EmailException {
         setRealm(realm);
         setUser(user);
 
