@@ -324,7 +324,7 @@ module.service('ServerInfo', function($resource, $q, $http) {
     var info = {};
     var delay = $q.defer();
 
-    $http.get(authUrl + '/admin/serverinfo').success(function(data) {
+    $http.get(authUrl + '/admin/serverinfo').then(function(data) {
         angular.copy(data, info);
         delay.resolve(info);
     });
@@ -334,7 +334,7 @@ module.service('ServerInfo', function($resource, $q, $http) {
             return info;
         },
         reload: function() {
-            $http.get(authUrl + '/admin/serverinfo').success(function(data) {
+            $http.get(authUrl + '/admin/serverinfo').then(function(data) {
                 angular.copy(data, info);
             });
         },
