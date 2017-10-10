@@ -251,7 +251,7 @@ public class AssertAdminEvents implements TestRule {
 
                             // Reflection-based comparing for other types - compare the non-null fields of "expected" representation with the "actual" representation from the event
                             for (Method method : Reflections.getAllDeclaredMethods(expectedRep.getClass())) {
-                                if (method.getName().startsWith("get") || method.getName().startsWith("is")) {
+                                if (method.getParameterCount() == 0 && (method.getName().startsWith("get") || method.getName().startsWith("is"))) {
                                     Object expectedValue = Reflections.invokeMethod(method, expectedRep);
                                     if (expectedValue != null) {
                                         Object actualValue = Reflections.invokeMethod(method, actualRep);
