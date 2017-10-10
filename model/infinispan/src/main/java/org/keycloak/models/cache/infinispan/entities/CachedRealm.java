@@ -42,6 +42,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -143,6 +145,8 @@ public class CachedRealm extends AbstractExtendableRevisioned {
 
     protected Map<String, String> attributes;
 
+    private ConcurrentMap<String, Integer> userActionTokenLifespans;
+
     public CachedRealm(Long revision, RealmModel model) {
         super(revision, model.getId());
         name = model.getName();
@@ -192,6 +196,7 @@ public class CachedRealm extends AbstractExtendableRevisioned {
         emailTheme = model.getEmailTheme();
 
         requiredCredentials = model.getRequiredCredentials();
+        userActionTokenLifespans = new ConcurrentHashMap(model.getUserActionTokenLifespans());
 
         this.identityProviders = new ArrayList<>();
 
@@ -407,6 +412,11 @@ public class CachedRealm extends AbstractExtendableRevisioned {
     public int getAccessCodeLifespanUserAction() {
         return accessCodeLifespanUserAction;
     }
+
+    public ConcurrentMap<String, Integer> getUserActionTokenLifespans() {
+        return userActionTokenLifespans;
+    }
+
     public int getAccessCodeLifespanLogin() {
         return accessCodeLifespanLogin;
     }
@@ -417,6 +427,23 @@ public class CachedRealm extends AbstractExtendableRevisioned {
 
     public int getActionTokenGeneratedByUserLifespan() {
         return actionTokenGeneratedByUserLifespan;
+    }
+
+    /**
+     * This method is supposed to return user lifespan based on the action token ID
+     * provided. If nothing is provided, it will return the default lifespan.
+     * @param actionTokenId
+     * @return lifespan
+     */
+    public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        if (actionTokenId == null)
+            return accessCodeLifespanUserAction;
+        return this.userActionTokenLifespans.get(actionTokenId);
+    }
+
+    public void removeActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        if (actionTokenId != null)
+            userActionTokenLifespans.remove(actionTokenId);
     }
 
     public List<RequiredCredentialModel> getRequiredCredentials() {
@@ -609,5 +636,4 @@ public class CachedRealm extends AbstractExtendableRevisioned {
     public Map<String, String> getAttributes() {
         return attributes;
     }
-
 }

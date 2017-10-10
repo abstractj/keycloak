@@ -27,6 +27,7 @@ import org.keycloak.storage.UserStorageProvider;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -455,6 +456,18 @@ public class RealmAdapter implements CachedRealmModel {
     }
 
     @Override
+    public Map<String, Integer> getUserActionTokenLifespans() {
+        if (isUpdated()) return updated.getUserActionTokenLifespans();
+        return cached.getUserActionTokenLifespans();
+    }
+
+    @Override
+    public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
+        getDelegateForUpdate();
+        updated.setUserActionTokenLifespans(userActionTokenLifespans);
+    }
+
+    @Override
     public int getAccessCodeLifespanLogin() {
         if (isUpdated()) return updated.getAccessCodeLifespanLogin();
         return cached.getAccessCodeLifespanLogin();
@@ -488,6 +501,18 @@ public class RealmAdapter implements CachedRealmModel {
     public void setActionTokenGeneratedByUserLifespan(int seconds) {
         getDelegateForUpdate();
         updated.setActionTokenGeneratedByUserLifespan(seconds);
+    }
+
+    @Override
+    public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        if (isUpdated()) return updated.getActionTokenGeneratedByUserLifespan(actionTokenId);
+        return cached.getActionTokenGeneratedByUserLifespan(actionTokenId);
+    }
+
+    @Override
+    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, int seconds) {
+        getDelegateForUpdate();
+        updated.setActionTokenGeneratedByUserLifespan(actionTokenId, seconds);
     }
 
     @Override

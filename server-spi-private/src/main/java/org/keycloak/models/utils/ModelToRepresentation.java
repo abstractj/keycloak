@@ -266,6 +266,7 @@ public class ModelToRepresentation {
         rep.setAccessCodeLifespanLogin(realm.getAccessCodeLifespanLogin());
         rep.setActionTokenGeneratedByAdminLifespan(realm.getActionTokenGeneratedByAdminLifespan());
         rep.setActionTokenGeneratedByUserLifespan(realm.getActionTokenGeneratedByUserLifespan());
+        rep.setUserActionTokenLifespans(realm.getUserActionTokenLifespans());
         rep.setSmtpServer(new HashMap<>(realm.getSmtpConfig()));
         rep.setBrowserSecurityHeaders(realm.getBrowserSecurityHeaders());
         rep.setAccountTheme(realm.getAccountTheme());

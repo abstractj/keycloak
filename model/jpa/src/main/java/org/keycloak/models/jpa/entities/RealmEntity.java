@@ -41,6 +41,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -236,7 +238,6 @@ public class RealmEntity {
 
     @Column(name="DEFAULT_LOCALE")
     protected String defaultLocale;
-
 
     public String getId() {
         return id;
@@ -779,6 +780,5 @@ public class RealmEntity {
     public int hashCode() {
         return id.hashCode();
     }
-
 }
 

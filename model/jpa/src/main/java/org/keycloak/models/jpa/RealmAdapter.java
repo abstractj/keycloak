@@ -22,13 +22,53 @@ import org.keycloak.common.enums.SslRequired;
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentFactory;
 import org.keycloak.component.ComponentModel;
-import org.keycloak.models.*;
-import org.keycloak.models.jpa.entities.*;
+import org.keycloak.models.AuthenticationExecutionModel;
+import org.keycloak.models.AuthenticationFlowModel;
+import org.keycloak.models.AuthenticatorConfigModel;
+import org.keycloak.models.ClientModel;
+import org.keycloak.models.ClientTemplateModel;
+import org.keycloak.models.GroupModel;
+import org.keycloak.models.IdentityProviderMapperModel;
+import org.keycloak.models.IdentityProviderModel;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.ModelException;
+import org.keycloak.models.OTPPolicy;
+import org.keycloak.models.PasswordPolicy;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.RequiredActionProviderModel;
+import org.keycloak.models.RequiredCredentialModel;
+import org.keycloak.models.RoleModel;
+import org.keycloak.models.jpa.entities.AuthenticationExecutionEntity;
+import org.keycloak.models.jpa.entities.AuthenticationFlowEntity;
+import org.keycloak.models.jpa.entities.AuthenticatorConfigEntity;
+import org.keycloak.models.jpa.entities.ClientEntity;
+import org.keycloak.models.jpa.entities.ClientTemplateEntity;
+import org.keycloak.models.jpa.entities.ComponentConfigEntity;
+import org.keycloak.models.jpa.entities.ComponentEntity;
+import org.keycloak.models.jpa.entities.GroupEntity;
+import org.keycloak.models.jpa.entities.IdentityProviderEntity;
+import org.keycloak.models.jpa.entities.IdentityProviderMapperEntity;
+import org.keycloak.models.jpa.entities.RealmAttributeEntity;
+import org.keycloak.models.jpa.entities.RealmAttributes;
+import org.keycloak.models.jpa.entities.RealmEntity;
+import org.keycloak.models.jpa.entities.RequiredActionProviderEntity;
+import org.keycloak.models.jpa.entities.RequiredCredentialEntity;
+import org.keycloak.models.jpa.entities.RoleEntity;
 import org.keycloak.models.utils.ComponentUtil;
 import org.keycloak.models.utils.KeycloakModelUtils;
 
 import javax.persistence.EntityManager;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -43,6 +83,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     protected KeycloakSession session;
     private PasswordPolicy passwordPolicy;
     private OTPPolicy otpPolicy;
+    private Map<String, Integer> userActionTokenLifespans;
 
     public RealmAdapter(KeycloakSession session, EntityManager em, RealmEntity realm) {
         this.session = session;
@@ -474,6 +515,29 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     }
 
     @Override
+    public Map<String, Integer> getUserActionTokenLifespans() {
+
+        if (userActionTokenLifespans != null)
+            return userActionTokenLifespans;
+
+        Map<String, String> attributes = getAttributes();
+        if (attributes.isEmpty()) return Collections.EMPTY_MAP;
+        Map<String, Integer> userActionTokens = new HashMap<>();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            if (entry.getKey().startsWith(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + ".")) {
+                userActionTokens.put(entry.getKey().substring(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN.length() + 1),
+                        Integer.parseInt(entry.getValue()));
+            }
+        }
+        return Collections.unmodifiableMap(userActionTokens);
+    }
+
+    @Override
+    public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
+        this.userActionTokenLifespans = userActionTokenLifespans;
+    }
+
+    @Override
     public int getAccessCodeLifespanLogin() {
         return realm.getAccessCodeLifespanLogin();
     }
@@ -502,6 +566,16 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public void setActionTokenGeneratedByUserLifespan(int actionTokenGeneratedByUserLifespan) {
         setAttribute(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN, actionTokenGeneratedByUserLifespan);
+    }
+
+    @Override
+    public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        return getAttribute(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "." + actionTokenId, getAccessCodeLifespanUserAction());
+    }
+
+    @Override
+    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, int actionTokenGeneratedByUserLifespan) {
+        setAttribute(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "." + actionTokenId, actionTokenGeneratedByUserLifespan);
     }
 
     protected RequiredCredentialModel initRequiredCredentialModel(String type) {

@@ -186,6 +186,15 @@ public interface RealmModel extends RoleContainerModel {
 
     void setAccessCodeLifespanUserAction(int seconds);
 
+    /**
+     * This method will return a map with all the lifespans available
+     * or an empty map, but never null.
+     * @return map with user action token lifespans
+     */
+    Map<String, Integer> getUserActionTokenLifespans();
+
+    void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans);
+
     int getAccessCodeLifespanLogin();
 
     void setAccessCodeLifespanLogin(int seconds);
@@ -195,6 +204,9 @@ public interface RealmModel extends RoleContainerModel {
 
     int getActionTokenGeneratedByUserLifespan();
     void setActionTokenGeneratedByUserLifespan(int seconds);
+
+    int getActionTokenGeneratedByUserLifespan(String actionTokenType);
+    void setActionTokenGeneratedByUserLifespan(String actionTokenType, int seconds);
 
     List<RequiredCredentialModel> getRequiredCredentials();
 
