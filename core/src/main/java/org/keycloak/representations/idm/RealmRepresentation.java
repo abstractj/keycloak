@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -114,19 +115,20 @@ public class RealmRepresentation {
     protected String accountTheme;
     protected String adminTheme;
     protected String emailTheme;
-    
+
     protected Boolean eventsEnabled;
     protected Long eventsExpiration;
     protected List<String> eventsListeners;
     protected List<String> enabledEventTypes;
-    
     protected Boolean adminEventsEnabled;
     protected Boolean adminEventsDetailsEnabled;
-    
+
     private List<IdentityProviderRepresentation> identityProviders;
     private List<IdentityProviderMapperRepresentation> identityProviderMappers;
     private List<ProtocolMapperRepresentation> protocolMappers;
     private MultivaluedHashMap<String, ComponentExportRepresentation> components;
+    private Map<String, Integer> userActionTokenLifespans = new ConcurrentHashMap<>();
+
     protected Boolean internationalizationEnabled;
     protected Set<String> supportedLocales;
     protected String defaultLocale;
@@ -342,6 +344,37 @@ public class RealmRepresentation {
         this.accessCodeLifespanUserAction = accessCodeLifespanUserAction;
     }
 
+    /**
+     * This method is supposed to return user lifespan based on the action token ID
+     * provided. If nothing is provided, it will return the default lifespan.
+     * @param actionTokenId
+     * @return lifespan
+     */
+    public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        if (actionTokenId == null || this.userActionTokenLifespans.get(actionTokenId) == null)
+            return accessCodeLifespanUserAction;
+        return this.userActionTokenLifespans.get(actionTokenId);
+    }
+
+    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, Integer seconds) {
+        if (seconds != null)
+            userActionTokenLifespans.put(actionTokenId, seconds);
+    }
+
+    //TODO check if we really need this
+    public void removeActionTokenGeneratedByUserLifespan(String actionTokenId) {
+        if (actionTokenId != null)
+            userActionTokenLifespans.remove(actionTokenId);
+    }
+
+    public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
+        this.userActionTokenLifespans = userActionTokenLifespans;
+    }
+
+    public Map<String, Integer> getUserActionTokenLifespans() {
+        return userActionTokenLifespans;
+    }
+
     public Integer getAccessCodeLifespanLogin() {
         return accessCodeLifespanLogin;
     }
@@ -449,7 +482,7 @@ public class RealmRepresentation {
     public void setVerifyEmail(Boolean verifyEmail) {
         this.verifyEmail = verifyEmail;
     }
-    
+
     public Boolean isLoginWithEmailAllowed() {
         return loginWithEmailAllowed;
     }
@@ -457,7 +490,7 @@ public class RealmRepresentation {
     public void setLoginWithEmailAllowed(Boolean loginWithEmailAllowed) {
         this.loginWithEmailAllowed = loginWithEmailAllowed;
     }
-    
+
     public Boolean isDuplicateEmailsAllowed() {
         return duplicateEmailsAllowed;
     }
@@ -750,8 +783,8 @@ public class RealmRepresentation {
         return supportedLocales;
     }
 
-    public void addSupportedLocales(String locale) {
-        if(supportedLocales == null){
+    public void addSupportedLocales(String locale){
+        if(supportedLocales == null) {
             supportedLocales = new HashSet<>();
         }
         supportedLocales.add(locale);

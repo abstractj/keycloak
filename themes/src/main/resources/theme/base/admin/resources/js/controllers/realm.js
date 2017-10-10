@@ -1065,8 +1065,10 @@ module.controller('RealmIdentityProviderExportCtrl', function(realm, identityPro
     }
 });
 
-module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, $location, $route, Dialog, Notifications, TimeUnit, TimeUnit2) {
+module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, $location, $route, Dialog, Notifications, TimeUnit, TimeUnit2, serverInfo) {
     $scope.realm = realm;
+    $scope.serverInfo = serverInfo;
+    $scope.actionTokenProviders = $scope.serverInfo.providers.actionTokenHandler.providers;
 
     $scope.realm.accessTokenLifespan = TimeUnit2.asUnit(realm.accessTokenLifespan);
     $scope.realm.accessTokenLifespanForImplicitFlow = TimeUnit2.asUnit(realm.accessTokenLifespanForImplicitFlow);
@@ -1078,12 +1080,23 @@ module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, 
     $scope.realm.accessCodeLifespanUserAction = TimeUnit2.asUnit(realm.accessCodeLifespanUserAction);
     $scope.realm.actionTokenGeneratedByAdminLifespan = TimeUnit2.asUnit(realm.actionTokenGeneratedByAdminLifespan);
     $scope.realm.actionTokenGeneratedByUserLifespan = TimeUnit2.asUnit(realm.actionTokenGeneratedByUserLifespan);
+    $scope.realm.attributes = realm.attributes
 
     var oldCopy = angular.copy($scope.realm);
     $scope.changed = false;
 
     $scope.$watch('realm', function() {
         if (!angular.equals($scope.realm, oldCopy)) {
+            $scope.changed = true;
+        }
+    }, true);
+
+    $scope.$watch('actionLifespanId', function () {
+        $scope.actionTokenAttribute = TimeUnit2.asUnit($scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId]);
+    }, true);
+
+    $scope.$watch('actionTokenAttribute.time', function () {
+        if ($scope.actionLifespanId != null) {
             $scope.changed = true;
         }
     }, true);
@@ -1104,11 +1117,21 @@ module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, 
         $scope.realm.actionTokenGeneratedByAdminLifespan = $scope.realm.actionTokenGeneratedByAdminLifespan.toSeconds();
         $scope.realm.actionTokenGeneratedByUserLifespan = $scope.realm.actionTokenGeneratedByUserLifespan.toSeconds();
 
+        //Make it optional
+        if ($scope.actionTokenAttribute != null)
+            $scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId] = $scope.actionTokenAttribute.toSeconds();
+
         Realm.update($scope.realm, function () {
             $route.reload();
             Notifications.success("The changes have been saved to the realm.");
         });
     };
+    
+    $scope.resetToDefaultToken = function (actionTokenId) {
+        $scope.actionTokenAttribute = $scope.realm.actionTokenGeneratedByUserLifespan;
+        //TODO review if this is really necessary
+        delete $scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId];
+    }
 
     $scope.reset = function() {
         $route.reload();
