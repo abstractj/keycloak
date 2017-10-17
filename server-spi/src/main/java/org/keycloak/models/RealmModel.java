@@ -206,7 +206,7 @@ public interface RealmModel extends RoleContainerModel {
     void setActionTokenGeneratedByUserLifespan(int seconds);
 
     int getActionTokenGeneratedByUserLifespan(String actionTokenType);
-    void setActionTokenGeneratedByUserLifespan(String actionTokenType, int seconds);
+    void setActionTokenGeneratedByUserLifespan(String actionTokenType, Integer seconds);
 
     List<RequiredCredentialModel> getRequiredCredentials();
 

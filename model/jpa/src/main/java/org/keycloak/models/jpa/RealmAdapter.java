@@ -520,15 +520,13 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         if (userActionTokenLifespans != null)
             return userActionTokenLifespans;
 
-        Map<String, String> attributes = getAttributes();
-        if (attributes.isEmpty()) return Collections.EMPTY_MAP;
         Map<String, Integer> userActionTokens = new HashMap<>();
-        for (Map.Entry<String, String> entry : attributes.entrySet()) {
-            if (entry.getKey().startsWith(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + ".")) {
-                userActionTokens.put(entry.getKey().substring(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN.length() + 1),
-                        Integer.parseInt(entry.getValue()));
-            }
-        }
+
+        getAttributes().entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "."))
+                .forEach(entry -> userActionTokens.put(entry.getKey().substring(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN.length() + 1), Integer.parseInt(entry.getValue())));
+
+
         return Collections.unmodifiableMap(userActionTokens);
     }
 
@@ -574,8 +572,9 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     }
 
     @Override
-    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, int actionTokenGeneratedByUserLifespan) {
-        setAttribute(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "." + actionTokenId, actionTokenGeneratedByUserLifespan);
+    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, Integer actionTokenGeneratedByUserLifespan) {
+        if (actionTokenGeneratedByUserLifespan != null)
+            setAttribute(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "." + actionTokenId, actionTokenGeneratedByUserLifespan);
     }
 
     protected RequiredCredentialModel initRequiredCredentialModel(String type) {
@@ -721,7 +720,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
             entities.remove(entity);
         }
         em.flush();
-     }
+    }
 
     @Override
     public List<GroupModel> getDefaultGroups() {
@@ -1052,7 +1051,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
 
     @Override
     public void setMasterAdminClient(ClientModel client) {
-        ClientEntity appEntity = client !=null ? em.getReference(ClientEntity.class, client.getId()) : null;
+        ClientEntity appEntity = client != null ? em.getReference(ClientEntity.class, client.getId()) : null;
         realm.setMasterAdminClient(appEntity);
         em.flush();
     }
@@ -1063,7 +1062,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         if (entities.isEmpty()) return Collections.EMPTY_LIST;
         List<IdentityProviderModel> identityProviders = new ArrayList<IdentityProviderModel>();
 
-        for (IdentityProviderEntity entity: entities) {
+        for (IdentityProviderEntity entity : entities) {
             IdentityProviderModel identityProviderModel = entityToModel(entity);
 
             identityProviders.add(identityProviderModel);
@@ -1503,7 +1502,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public AuthenticationFlowModel addAuthenticationFlow(AuthenticationFlowModel model) {
         AuthenticationFlowEntity entity = new AuthenticationFlowEntity();
-        String id = (model.getId() == null) ? KeycloakModelUtils.generateId(): model.getId();
+        String id = (model.getId() == null) ? KeycloakModelUtils.generateId() : model.getId();
         entity.setId(id);
         entity.setAlias(model.getAlias());
         entity.setDescription(model.getDescription());
@@ -1552,7 +1551,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public AuthenticationExecutionModel addAuthenticatorExecution(AuthenticationExecutionModel model) {
         AuthenticationExecutionEntity entity = new AuthenticationExecutionEntity();
-        String id = (model.getId() == null) ? KeycloakModelUtils.generateId(): model.getId();
+        String id = (model.getId() == null) ? KeycloakModelUtils.generateId() : model.getId();
         entity.setId(id);
         entity.setAuthenticator(model.getAuthenticator());
         entity.setPriority(model.getPriority());
@@ -1595,7 +1594,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public AuthenticatorConfigModel addAuthenticatorConfig(AuthenticatorConfigModel model) {
         AuthenticatorConfigEntity auth = new AuthenticatorConfigEntity();
-        String id = (model.getId() == null) ? KeycloakModelUtils.generateId(): model.getId();
+        String id = (model.getId() == null) ? KeycloakModelUtils.generateId() : model.getId();
         auth.setId(id);
         auth.setAlias(model.getAlias());
         auth.setRealm(realm);
@@ -1661,7 +1660,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public RequiredActionProviderModel addRequiredActionProvider(RequiredActionProviderModel model) {
         RequiredActionProviderEntity auth = new RequiredActionProviderEntity();
-        String id = (model.getId() == null) ? KeycloakModelUtils.generateId(): model.getId();
+        String id = (model.getId() == null) ? KeycloakModelUtils.generateId() : model.getId();
         auth.setId(id);
         auth.setAlias(model.getAlias());
         auth.setName(model.getName());
@@ -1876,7 +1875,6 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
 
     /**
      * This just exists for testing purposes
-     *
      */
     public static final String COMPONENT_PROVIDER_EXISTS_DISABLED = "component.provider.exists.disabled";
 
@@ -2027,5 +2025,13 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         ComponentEntity c = em.find(ComponentEntity.class, id);
         if (c == null) return null;
         return entityToModel(c);
+    }
+
+    public static void main(String[] args) {
+
+//        Integer.parseInt(null);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("test", null);
+        System.out.println(map.get("test"));
     }
 }

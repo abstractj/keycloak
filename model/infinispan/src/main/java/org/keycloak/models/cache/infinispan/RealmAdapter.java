@@ -510,9 +510,11 @@ public class RealmAdapter implements CachedRealmModel {
     }
 
     @Override
-    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, int seconds) {
-        getDelegateForUpdate();
-        updated.setActionTokenGeneratedByUserLifespan(actionTokenId, seconds);
+    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, Integer seconds) {
+        if (seconds != null) {
+            getDelegateForUpdate();
+            updated.setActionTokenGeneratedByUserLifespan(actionTokenId, seconds);
+        }
     }
 
     @Override
