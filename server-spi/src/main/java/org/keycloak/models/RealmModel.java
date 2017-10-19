@@ -193,8 +193,6 @@ public interface RealmModel extends RoleContainerModel {
      */
     Map<String, Integer> getUserActionTokenLifespans();
 
-    void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans);
-
     int getAccessCodeLifespanLogin();
 
     void setAccessCodeLifespanLogin(int seconds);

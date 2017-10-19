@@ -83,7 +83,6 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     protected KeycloakSession session;
     private PasswordPolicy passwordPolicy;
     private OTPPolicy otpPolicy;
-    private Map<String, Integer> userActionTokenLifespans;
 
     public RealmAdapter(KeycloakSession session, EntityManager em, RealmEntity realm) {
         this.session = session;
@@ -517,9 +516,6 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
     @Override
     public Map<String, Integer> getUserActionTokenLifespans() {
 
-        if (userActionTokenLifespans != null)
-            return userActionTokenLifespans;
-
         Map<String, Integer> userActionTokens = new HashMap<>();
 
         getAttributes().entrySet().stream()
@@ -528,11 +524,6 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
 
 
         return Collections.unmodifiableMap(userActionTokens);
-    }
-
-    @Override
-    public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
-        this.userActionTokenLifespans = userActionTokenLifespans;
     }
 
     @Override

@@ -203,10 +203,6 @@ public class RepresentationToModel {
             newRealm.setActionTokenGeneratedByUserLifespan(rep.getActionTokenGeneratedByUserLifespan());
         else newRealm.setActionTokenGeneratedByUserLifespan(newRealm.getAccessCodeLifespanUserAction());
 
-        if (rep.getUserActionTokenLifespans() != null)
-            newRealm.setUserActionTokenLifespans(rep.getUserActionTokenLifespans());
-        else newRealm.setUserActionTokenLifespans(newRealm.getUserActionTokenLifespans());
-
         if (rep.getSslRequired() != null)
             newRealm.setSslRequired(SslRequired.valueOf(rep.getSslRequired().toUpperCase()));
         if (rep.isRegistrationAllowed() != null) newRealm.setRegistrationAllowed(rep.isRegistrationAllowed());

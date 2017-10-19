@@ -27,7 +27,6 @@ import org.keycloak.storage.UserStorageProvider;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -459,12 +458,6 @@ public class RealmAdapter implements CachedRealmModel {
     public Map<String, Integer> getUserActionTokenLifespans() {
         if (isUpdated()) return updated.getUserActionTokenLifespans();
         return cached.getUserActionTokenLifespans();
-    }
-
-    @Override
-    public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
-        getDelegateForUpdate();
-        updated.setUserActionTokenLifespans(userActionTokenLifespans);
     }
 
     @Override
