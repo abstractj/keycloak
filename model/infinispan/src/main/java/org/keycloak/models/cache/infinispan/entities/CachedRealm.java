@@ -145,7 +145,7 @@ public class CachedRealm extends AbstractExtendableRevisioned {
 
     protected Map<String, String> attributes;
 
-    private ConcurrentMap<String, Integer> userActionTokenLifespans;
+    private Map<String, Integer> userActionTokenLifespans;
 
     public CachedRealm(Long revision, RealmModel model) {
         super(revision, model.getId());
@@ -196,7 +196,7 @@ public class CachedRealm extends AbstractExtendableRevisioned {
         emailTheme = model.getEmailTheme();
 
         requiredCredentials = model.getRequiredCredentials();
-        userActionTokenLifespans = new ConcurrentHashMap(model.getUserActionTokenLifespans());
+        userActionTokenLifespans = Collections.unmodifiableMap(new HashMap<>(model.getUserActionTokenLifespans()));
 
         this.identityProviders = new ArrayList<>();
 
@@ -413,7 +413,7 @@ public class CachedRealm extends AbstractExtendableRevisioned {
         return accessCodeLifespanUserAction;
     }
 
-    public ConcurrentMap<String, Integer> getUserActionTokenLifespans() {
+    public Map<String, Integer> getUserActionTokenLifespans() {
         return userActionTokenLifespans;
     }
 
@@ -437,13 +437,8 @@ public class CachedRealm extends AbstractExtendableRevisioned {
      */
     public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
         if (actionTokenId == null || this.userActionTokenLifespans.get(actionTokenId) == null)
-            return accessCodeLifespanUserAction;
+            return getActionTokenGeneratedByUserLifespan();
         return this.userActionTokenLifespans.get(actionTokenId);
-    }
-
-    public void removeActionTokenGeneratedByUserLifespan(String actionTokenId) {
-        if (actionTokenId != null)
-            userActionTokenLifespans.remove(actionTokenId);
     }
 
     public List<RequiredCredentialModel> getRequiredCredentials() {
