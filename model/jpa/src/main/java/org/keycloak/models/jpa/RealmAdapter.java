@@ -479,6 +479,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         Map<String, Integer> userActionTokens = new HashMap<>();
 
         getAttributes().entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
                 .filter(entry -> entry.getKey().startsWith(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "."))
                 .forEach(entry -> userActionTokens.put(entry.getKey().substring(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN.length() + 1), Integer.valueOf(entry.getValue())));
 

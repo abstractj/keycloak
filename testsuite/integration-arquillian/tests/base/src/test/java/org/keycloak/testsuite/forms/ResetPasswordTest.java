@@ -18,7 +18,6 @@ package org.keycloak.testsuite.forms;
 
 import org.keycloak.authentication.actiontoken.resetcred.ResetCredentialsActionToken;
 import org.jboss.arquillian.graphene.page.Page;
-import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventType;
@@ -385,8 +384,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
-        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE));
-        realmRep.setActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE, 60);
+        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
+        realmRep.setActionTokenGeneratedByUserLifespan(60);
         testRealm().update(realmRep);
 
         try {
@@ -425,8 +424,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
-        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE));
-        realmRep.setActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE, 60);
+        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
+        realmRep.setActionTokenGeneratedByUserLifespan(60);
         testRealm().update(realmRep);
 
         try {
@@ -471,8 +470,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
-        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE));
-        realmRep.setActionTokenGeneratedByUserLifespan(ResetCredentialsActionToken.TOKEN_TYPE, 60);
+        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
+        realmRep.setActionTokenGeneratedByUserLifespan(60);
         testRealm().update(realmRep);
 
         try {

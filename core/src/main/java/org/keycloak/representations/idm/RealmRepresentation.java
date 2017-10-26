@@ -127,7 +127,7 @@ public class RealmRepresentation {
     private List<IdentityProviderMapperRepresentation> identityProviderMappers;
     private List<ProtocolMapperRepresentation> protocolMappers;
     private MultivaluedHashMap<String, ComponentExportRepresentation> components;
-    private Map<String, Integer> userActionTokenLifespans = new ConcurrentHashMap<>();
+    private Map<String, Integer> userActionTokenLifespans;
 
     protected Boolean internationalizationEnabled;
     protected Set<String> supportedLocales;
@@ -344,31 +344,11 @@ public class RealmRepresentation {
         this.accessCodeLifespanUserAction = accessCodeLifespanUserAction;
     }
 
-    /**
-     * This method is supposed to return user lifespan based on the action token ID
-     * provided. If nothing is provided, it will return the default lifespan.
-     * @param actionTokenId
-     * @return lifespan
-     */
-    public int getActionTokenGeneratedByUserLifespan(String actionTokenId) {
-        if (actionTokenId == null || this.userActionTokenLifespans.get(actionTokenId) == null)
-            return accessCodeLifespanUserAction;
-        return this.userActionTokenLifespans.get(actionTokenId);
-    }
-
-    public void setActionTokenGeneratedByUserLifespan(String actionTokenId, Integer seconds) {
-        if (seconds != null)
-            userActionTokenLifespans.put(actionTokenId, seconds);
-    }
-
-    //TODO check if we really need this
-    public void removeActionTokenGeneratedByUserLifespan(String actionTokenId) {
-        if (actionTokenId != null)
-            userActionTokenLifespans.remove(actionTokenId);
-    }
-
     public void setUserActionTokenLifespans(Map<String, Integer> userActionTokenLifespans) {
         this.userActionTokenLifespans = userActionTokenLifespans;
+
+        if (userActionTokenLifespans == null)
+            this.userActionTokenLifespans = new ConcurrentHashMap<>();
     }
 
     public Map<String, Integer> getUserActionTokenLifespans() {
