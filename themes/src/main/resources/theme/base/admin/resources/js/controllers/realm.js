@@ -1095,9 +1095,10 @@ module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, 
         $scope.actionTokenAttribute = TimeUnit2.asUnit($scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId]);
     }, true);
 
-    $scope.$watch('actionTokenAttribute.time', function () {
-        if ($scope.actionLifespanId != null) {
+    $scope.$watch('actionTokenAttribute', function () {
+        if ($scope.actionLifespanId != null && $scope.actionTokenAttribute != null) {
             $scope.changed = true;
+            $scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId] = $scope.actionTokenAttribute.toSeconds();
         }
     }, true);
 
@@ -1116,10 +1117,6 @@ module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, 
         $scope.realm.accessCodeLifespanLogin = $scope.realm.accessCodeLifespanLogin.toSeconds();
         $scope.realm.actionTokenGeneratedByAdminLifespan = $scope.realm.actionTokenGeneratedByAdminLifespan.toSeconds();
         $scope.realm.actionTokenGeneratedByUserLifespan = $scope.realm.actionTokenGeneratedByUserLifespan.toSeconds();
-
-        //Make it optional
-        if ($scope.actionTokenAttribute != null)
-            $scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId] = $scope.actionTokenAttribute.toSeconds();
 
         Realm.update($scope.realm, function () {
             $route.reload();
