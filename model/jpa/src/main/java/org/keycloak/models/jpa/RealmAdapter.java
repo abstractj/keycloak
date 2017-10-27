@@ -473,6 +473,7 @@ public class RealmAdapter implements RealmModel, JpaModel<RealmEntity> {
         em.flush();
     }
 
+    //FIXME always empty
     @Override
     public Map<String, Integer> getUserActionTokenLifespans() {
 
