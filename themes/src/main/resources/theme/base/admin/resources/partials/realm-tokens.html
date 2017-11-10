@@ -198,7 +198,7 @@
                         {{:: 'action-token-generated-by-user.' + actionTokenId | translate }}
                     </option>
                 </select>
-                <input class="form-control" type="number" required min="1" max="31536000" data-ng-model="actionTokenAttribute.time"
+                <input class="form-control" type="number" min="1" max="31536000" data-ng-model="actionTokenAttribute.time"
                        id="actionTokenAttributeTime" name="actionTokenAttributeTime">
                 <select class="form-control" name="actionTokenAttributeUnit"
                         data-ng-model="actionTokenAttribute.unit">
