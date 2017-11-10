@@ -19,7 +19,9 @@ package org.keycloak.testsuite.console.realm;
 
 import org.jboss.arquillian.graphene.page.Page;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
 
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,7 @@ public class TokensTest extends AbstractRealmTest {
         tokenSettingsPage.navigateTo();
     }
 
+    @Ignore
     @Test
     public void testTimeoutForRealmSession() throws InterruptedException {
         tokenSettingsPage.form().setSessionTimeout(TIMEOUT, TIME_UNIT);
@@ -60,9 +63,28 @@ public class TokensTest extends AbstractRealmTest {
         assertCurrentUrlStartsWithLoginUrlOf(testRealmPage);
     }
 
+    @Ignore
     @Test
     public void testLifespanOfRealmSession() throws InterruptedException {
         tokenSettingsPage.form().setSessionTimeoutLifespan(TIMEOUT, TIME_UNIT);
+        tokenSettingsPage.form().save();
+
+        loginToTestRealmConsoleAs(testUser);
+        waitForTimeout(TIMEOUT / 2);
+
+        driver.navigate().refresh();
+        assertCurrentUrlStartsWith(testRealmAdminConsolePage); // assert still logged in (within lifespan)
+
+        waitForTimeout(TIMEOUT / 2 + 2);
+        driver.navigate().refresh();
+
+        log.debug(driver.getCurrentUrl());
+        assertCurrentUrlStartsWithLoginUrlOf(testRealmPage); // assert logged out (lifespan exceeded)
+    }
+
+    @Test
+    public void testLifespanOfStrawman() throws InterruptedException {
+        tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TIME_UNIT);
         tokenSettingsPage.form().save();
 
         loginToTestRealmConsoleAs(testUser);
