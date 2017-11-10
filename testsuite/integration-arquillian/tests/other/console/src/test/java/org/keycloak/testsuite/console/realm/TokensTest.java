@@ -22,10 +22,17 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
+import org.keycloak.models.UserModel;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
+import org.keycloak.testsuite.console.page.users.UserAttributes;
+import org.keycloak.testsuite.model.RequiredUserAction;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import static org.keycloak.testsuite.model.RequiredUserAction.UPDATE_PASSWORD;
+import static org.keycloak.testsuite.model.RequiredUserAction.VERIFY_EMAIL;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWith;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWithLoginUrlOf;
 
@@ -37,6 +44,9 @@ public class TokensTest extends AbstractRealmTest {
 
     @Page
     private TokenSettings tokenSettingsPage;
+
+    @Page
+    private UserAttributes userAttributesPage;
 
     private static final int TIMEOUT = 1;
     private static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
@@ -83,12 +93,16 @@ public class TokensTest extends AbstractRealmTest {
     }
 
     @Test
-    public void testLifespanOfStrawman() throws InterruptedException {
+    public void testLifespanOfVerifyEmailActionToken() throws InterruptedException {
+        tokenSettingsPage.navigateTo();
+
         tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TIME_UNIT);
         tokenSettingsPage.form().save();
 
+        addRequiredAction(VERIFY_EMAIL);
+
         loginToTestRealmConsoleAs(testUser);
-        waitForTimeout(TIMEOUT / 2);
+        /*waitForTimeout(TIMEOUT / 2);
 
         driver.navigate().refresh();
         assertCurrentUrlStartsWith(testRealmAdminConsolePage); // assert still logged in (within lifespan)
@@ -97,7 +111,16 @@ public class TokensTest extends AbstractRealmTest {
         driver.navigate().refresh();
 
         log.debug(driver.getCurrentUrl());
-        assertCurrentUrlStartsWithLoginUrlOf(testRealmPage); // assert logged out (lifespan exceeded)
+        assertCurrentUrlStartsWithLoginUrlOf(testRealmPage); // assert logged out (lifespan exceeded)*/
+    }
+
+    private void addRequiredAction(RequiredUserAction userAction) {
+        userAttributesPage.setId(testUser.getId());
+        userAttributesPage.navigateTo();
+
+        userAttributesPage.form().addRequiredAction(userAction.getActionName());
+        userAttributesPage.form().save();
+        assertAlertSuccess();
     }
 
     private void waitForTimeout (int timeout) throws InterruptedException {
