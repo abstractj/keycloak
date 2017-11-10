@@ -420,7 +420,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
     }
 
     @Test
-    public void resetPasswordExpiredCodeShortPerActionTimeout() throws IOException, MessagingException, InterruptedException {
+    public void resetPasswordExpiredCodeShortPerActionLifespan() throws IOException, MessagingException, InterruptedException {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
@@ -545,7 +545,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
     }
 
     @Test
-    public void resetPasswordExpiredCodeAndAuthSessionPerActionTimeout() throws IOException, MessagingException, InterruptedException {
+    public void resetPasswordExpiredCodeAndAuthSessionPerActionLifespan() throws IOException, MessagingException, InterruptedException {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
@@ -684,7 +684,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
     }
 
     @Test
-    public void resetPasswordExpiredCodeForgotPasswordFlowPerActionTimeout() throws IOException, MessagingException, InterruptedException {
+    public void resetPasswordExpiredCodeForgotPasswordFlowPerActionLifespan() throws IOException, MessagingException, InterruptedException {
         final AtomicInteger originalValue = new AtomicInteger();
 
         RealmRepresentation realmRep = testRealm().toRepresentation();

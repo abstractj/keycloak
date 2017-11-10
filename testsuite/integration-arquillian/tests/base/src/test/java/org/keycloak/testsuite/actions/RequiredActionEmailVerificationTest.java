@@ -45,12 +45,14 @@ import org.keycloak.testsuite.pages.RegisterPage;
 import org.keycloak.testsuite.pages.VerifyEmailPage;
 import org.keycloak.testsuite.util.GreenMailRule;
 import org.keycloak.testsuite.util.MailUtils;
+import org.keycloak.testsuite.util.UserActionTokenBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hamcrest.Matchers;
 import static org.junit.Assert.assertEquals;
@@ -429,6 +431,49 @@ public class RequiredActionEmailVerificationTest extends AbstractTestRealmKeyclo
 
         try {
             setTimeOffset(3600);
+
+            driver.navigate().to(verificationUrl.trim());
+
+            loginPage.assertCurrent();
+            assertEquals("Action expired. Please start again.", loginPage.getError());
+
+            events.expectRequiredAction(EventType.EXECUTE_ACTION_TOKEN_ERROR)
+                    .error(Errors.EXPIRED_CODE)
+                    .client((String)null)
+                    .user(testUserId)
+                    .session((String)null)
+                    .clearDetails()
+                    .detail(Details.ACTION, VerifyEmailActionToken.TOKEN_TYPE)
+                    .assertEvent();
+        } finally {
+            setTimeOffset(0);
+        }
+    }
+
+    @Test
+    public void verifyEmailExpiredCodedPerActionLifespan() throws IOException, MessagingException {
+        final AtomicInteger originalValue = new AtomicInteger();
+
+        RealmRepresentation realmRep = testRealm().toRepresentation();
+        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
+        realmRep.setAttributes(UserActionTokenBuilder.create().verifyEmailLifespan(60).build());
+        testRealm().update(realmRep);
+
+        loginPage.open();
+        loginPage.login("test-user@localhost", "password");
+
+        verifyEmailPage.assertCurrent();
+
+        Assert.assertEquals(1, greenMail.getReceivedMessages().length);
+
+        MimeMessage message = greenMail.getLastReceivedMessage();
+
+        String verificationUrl = getPasswordResetEmailLink(message);
+
+        events.poll();
+
+        try {
+            setTimeOffset(70);
 
             driver.navigate().to(verificationUrl.trim());
 
