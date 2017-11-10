@@ -18,7 +18,6 @@ package org.keycloak.testsuite.forms;
 
 import org.keycloak.authentication.actiontoken.resetcred.ResetCredentialsActionToken;
 import org.jboss.arquillian.graphene.page.Page;
-import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.events.Details;
 import org.keycloak.events.Errors;
 import org.keycloak.events.EventType;
@@ -39,6 +38,7 @@ import org.keycloak.testsuite.pages.VerifyEmailPage;
 import org.keycloak.testsuite.util.GreenMailRule;
 import org.keycloak.testsuite.util.MailUtils;
 import org.keycloak.testsuite.util.OAuthClient;
+import org.keycloak.testsuite.util.UserActionTokenBuilder;
 import org.keycloak.testsuite.util.UserBuilder;
 
 import javax.mail.MessagingException;
@@ -425,7 +425,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        realmRep.setAttributes(getActionTokenAttribute(60));
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).build());
         testRealm().update(realmRep);
 
         try {
@@ -464,10 +464,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        Map<String, String> attr = getActionTokenAttribute(60);
         //Make sure that one attribute settings won't affect the other
-        attr.put("actionTokenGeneratedByUserLifespan." + VerifyEmailActionToken.TOKEN_TYPE, "300");
-        realmRep.setAttributes(attr);
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).verifyEmailLifespan(300).build());
 
         testRealm().update(realmRep);
 
@@ -552,7 +550,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        realmRep.setAttributes(getActionTokenAttribute(60));
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).build());
         testRealm().update(realmRep);
 
         try {
@@ -596,10 +594,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        Map<String, String> attr = getActionTokenAttribute(60);
         //Make sure that one attribute settings won't affect the other
-        attr.put("actionTokenGeneratedByUserLifespan." + VerifyEmailActionToken.TOKEN_TYPE, "300");
-        realmRep.setAttributes(attr);
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).verifyEmailLifespan(300).build());
         testRealm().update(realmRep);
 
         try {
@@ -693,7 +689,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        realmRep.setAttributes(getActionTokenAttribute(60));
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).build());
         testRealm().update(realmRep);
 
         try {
@@ -742,10 +738,8 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
 
         RealmRepresentation realmRep = testRealm().toRepresentation();
         originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
-        Map<String, String> attr = getActionTokenAttribute(60);
         //Make sure that one attribute settings won't affect the other
-        attr.put("actionTokenGeneratedByUserLifespan." + VerifyEmailActionToken.TOKEN_TYPE, "300");
-        realmRep.setAttributes(attr);
+        realmRep.setAttributes(UserActionTokenBuilder.create().resetCredentialsLifespan(60).verifyEmailLifespan(300).build());
         testRealm().update(realmRep);
 
         try {
@@ -1019,11 +1013,5 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         assertEquals(htmlChangePwdUrl, textChangePwdUrl);
 
         return htmlChangePwdUrl;
-    }
-
-    private Map<String, String> getActionTokenAttribute(int lifespan) {
-        Map<String, String> realmAttributes = new HashMap<>();
-        realmAttributes.put("actionTokenGeneratedByUserLifespan." + ResetCredentialsActionToken.TOKEN_TYPE, String.valueOf(lifespan));
-        return realmAttributes;
     }
 }
