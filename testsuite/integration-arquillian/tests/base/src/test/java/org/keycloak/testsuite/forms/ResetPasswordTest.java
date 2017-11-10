@@ -988,6 +988,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         assertEquals("Your account has been updated.", infoPage.getInfo());
     }
 
+    //FIXME duplicated with MailUtils
     public static String getPasswordResetEmailLink(MimeMessage message) throws IOException, MessagingException {
     	Multipart multipart = (Multipart) message.getContent();
 
@@ -1003,7 +1004,7 @@ public class ResetPasswordTest extends AbstractTestRealmKeycloakTest {
         assertEquals("text/html; charset=UTF-8", htmlContentType);
 
         final String htmlBody = (String) multipart.getBodyPart(1).getContent();
-        
+
         // .replace() accounts for escaping the ampersand
         // It's not escaped in the html version because html retrieved from a
         // message bundle is considered safe and it must be unescaped to display
