@@ -494,6 +494,50 @@ public class RequiredActionEmailVerificationTest extends AbstractTestRealmKeyclo
     }
 
     @Test
+    public void verifyEmailExpiredCodedPerActionMultipleTimeouts() throws IOException, MessagingException {
+        final AtomicInteger originalValue = new AtomicInteger();
+
+        RealmRepresentation realmRep = testRealm().toRepresentation();
+        originalValue.set(realmRep.getActionTokenGeneratedByUserLifespan());
+        //Make sure that one attribute settings won't affect the other
+        realmRep.setAttributes(UserActionTokenBuilder.create().verifyEmailLifespan(60).resetCredentialsLifespan(300).build());
+        testRealm().update(realmRep);
+
+        loginPage.open();
+        loginPage.login("test-user@localhost", "password");
+
+        verifyEmailPage.assertCurrent();
+
+        Assert.assertEquals(1, greenMail.getReceivedMessages().length);
+
+        MimeMessage message = greenMail.getLastReceivedMessage();
+
+        String verificationUrl = getPasswordResetEmailLink(message);
+
+        events.poll();
+
+        try {
+            setTimeOffset(70);
+
+            driver.navigate().to(verificationUrl.trim());
+
+            loginPage.assertCurrent();
+            assertEquals("Action expired. Please start again.", loginPage.getError());
+
+            events.expectRequiredAction(EventType.EXECUTE_ACTION_TOKEN_ERROR)
+                    .error(Errors.EXPIRED_CODE)
+                    .client((String)null)
+                    .user(testUserId)
+                    .session((String)null)
+                    .clearDetails()
+                    .detail(Details.ACTION, VerifyEmailActionToken.TOKEN_TYPE)
+                    .assertEvent();
+        } finally {
+            setTimeOffset(0);
+        }
+    }
+
+    @Test
     public void verifyEmailExpiredCodeAndExpiredSession() throws IOException, MessagingException {
         loginPage.open();
         loginPage.login("test-user@localhost", "password");
