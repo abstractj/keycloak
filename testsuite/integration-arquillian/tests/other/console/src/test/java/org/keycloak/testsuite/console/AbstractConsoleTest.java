@@ -94,6 +94,12 @@ public abstract class AbstractConsoleTest extends AbstractAuthTest {
         loginToAdminConsoleAs(testRealmAdminConsolePage, testRealmLoginPage, user);
     }
 
+    //For scenarios where you don't want to assert if user is logged in, e.g. user action tokens
+    public void loginToTestRealm() {
+        testRealmAdminConsolePage.navigateTo();
+        testRealmLoginPage.form().login(testUser);
+    }
+
     public void logoutFromTestRealmConsole() {
         logoutFromAdminConsole(testRealmAdminConsolePage);
     }

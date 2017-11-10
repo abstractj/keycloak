@@ -23,14 +23,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.models.UserModel;
+import org.keycloak.testsuite.auth.page.account.Account;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
 import org.keycloak.testsuite.console.page.users.UserAttributes;
 import org.keycloak.testsuite.model.RequiredUserAction;
+import org.keycloak.testsuite.pages.VerifyEmailPage;
+import org.openqa.selenium.By;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import static org.keycloak.testsuite.model.RequiredUserAction.UPDATE_PASSWORD;
 import static org.keycloak.testsuite.model.RequiredUserAction.VERIFY_EMAIL;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWith;
@@ -47,6 +51,12 @@ public class TokensTest extends AbstractRealmTest {
 
     @Page
     private UserAttributes userAttributesPage;
+
+    @Page
+    protected VerifyEmailPage verifyEmailPage;
+
+    @Page
+    private Account testRealmAccountPage;
 
     private static final int TIMEOUT = 1;
     private static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
@@ -94,14 +104,15 @@ public class TokensTest extends AbstractRealmTest {
 
     @Test
     public void testLifespanOfVerifyEmailActionToken() throws InterruptedException {
-        tokenSettingsPage.navigateTo();
-
         tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TIME_UNIT);
         tokenSettingsPage.form().save();
 
         addRequiredAction(VERIFY_EMAIL);
 
-        loginToTestRealmConsoleAs(testUser);
+        loginToTestRealm();
+//        waitForFeedbackText("You need to change your password to activate your account.");
+
+        verifyEmailPage.assertCurrent();
         /*waitForTimeout(TIMEOUT / 2);
 
         driver.navigate().refresh();
@@ -127,6 +138,11 @@ public class TokensTest extends AbstractRealmTest {
         log.info("Wait for timeout: " + timeout + " " + TIME_UNIT);
         TIME_UNIT.sleep(timeout);
         log.info("Timeout reached");
+    }
+
+    public void waitForFeedbackText(String text) {
+        waitGui().until().element(By.className("kc-feedback-text"))
+                .text().contains(text);
     }
 
 }
