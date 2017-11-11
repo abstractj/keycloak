@@ -21,27 +21,19 @@ import org.jboss.arquillian.graphene.page.Page;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.keycloak.authentication.actiontoken.execactions.ExecuteActionsActionToken;
-import org.keycloak.authentication.actiontoken.idpverifyemail.IdpVerifyAccountLinkActionToken;
 import org.keycloak.authentication.actiontoken.resetcred.ResetCredentialsActionToken;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.models.jpa.entities.RealmAttributes;
 import org.keycloak.testsuite.auth.page.account.Account;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
 import org.keycloak.testsuite.console.page.users.UserAttributes;
-import org.keycloak.testsuite.model.RequiredUserAction;
 import org.keycloak.testsuite.pages.VerifyEmailPage;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWith;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWithLoginUrlOf;
@@ -155,15 +147,6 @@ public class TokensTest extends AbstractRealmTest {
         assertEquals("ResetCredentialsActionToken expected to be propagated",
                 userActionTokens.get(ResetCredentialsActionToken.TOKEN_TYPE).longValue(), TimeUnit.HOURS.toSeconds(TIMEOUT));
 
-    }
-
-    private void addRequiredAction(RequiredUserAction userAction) {
-        userAttributesPage.setId(testUser.getId());
-        userAttributesPage.navigateTo();
-
-        userAttributesPage.form().addRequiredAction(userAction.getActionName());
-        userAttributesPage.form().save();
-        assertAlertSuccess();
     }
 
     private void waitForTimeout (int timeout) throws InterruptedException {

@@ -1125,8 +1125,9 @@ module.controller('RealmTokenDetailCtrl', function($scope, Realm, realm, $http, 
     };
     
     $scope.resetToDefaultToken = function (actionTokenId) {
-        $scope.actionTokenAttribute = $scope.realm.actionTokenGeneratedByUserLifespan;
+        $scope.actionTokenAttribute = {};
         delete $scope.realm.attributes['actionTokenGeneratedByUserLifespan.' + $scope.actionLifespanId];
+        $scope.actionTokenAttribute.unit = 'Minutes';
     }
 
     $scope.reset = function() {
