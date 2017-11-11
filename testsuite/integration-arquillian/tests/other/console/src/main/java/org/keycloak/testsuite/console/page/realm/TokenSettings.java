@@ -19,6 +19,7 @@ package org.keycloak.testsuite.console.page.realm;
 
 import org.jboss.arquillian.graphene.page.Page;
 import org.keycloak.testsuite.page.Form;
+import org.keycloak.testsuite.util.WaitUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.Select;
@@ -79,8 +80,14 @@ public class TokenSettings extends RealmSettings {
         }
 
         public void setOperation(String tokenType, int time, TimeUnit unit) {
-            setTimeout(actionTokenAttributeUnit, actionTokenAttributeTime, time, unit);
+            //FIXME duplicate line with seTimeout. Maybe refactor
+            waitUntilElement(sessionTimeout).is().present();
             actionTokenAttributeSelect.selectByValue(tokenType.toLowerCase());
+            setTimeout(actionTokenAttributeUnit, actionTokenAttributeTime, time, unit);
+        }
+
+        public void selectOperation(String tokenType) {
+
         }
 
         private void setTimeout(Select timeoutElement, WebElement unitElement,
@@ -91,5 +98,20 @@ public class TokenSettings extends RealmSettings {
             unitElement.sendKeys(valueOf(timeout));
         }
 
+        public String getActionTokenAttributeUnit() {
+            return actionTokenAttributeUnit.getFirstSelectedOption().getText();
+        }
+
+        public String getActionTokenAttributeTime() {
+            return actionTokenAttributeTime.getAttribute("value");
+        }
+
+        public boolean isOperationConfigured(String tokenType, int timeout, TimeUnit unit) {
+            waitUntilElement(sessionTimeout).is().present();
+            actionTokenAttributeSelect.selectByValue(tokenType.toLowerCase());
+
+            return actionTokenAttributeTime.getAttribute("value").equals(Integer.toString(timeout)) &&
+                    actionTokenAttributeUnit.getFirstSelectedOption().getText().equals(capitalize(unit.name().toLowerCase()));
+        }
     }
 }

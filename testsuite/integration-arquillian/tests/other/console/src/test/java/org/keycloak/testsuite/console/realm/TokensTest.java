@@ -21,22 +21,21 @@ import org.jboss.arquillian.graphene.page.Page;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
-import org.keycloak.models.UserModel;
 import org.keycloak.testsuite.auth.page.account.Account;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
 import org.keycloak.testsuite.console.page.users.UserAttributes;
 import org.keycloak.testsuite.model.RequiredUserAction;
 import org.keycloak.testsuite.pages.VerifyEmailPage;
-import org.openqa.selenium.By;
+import org.keycloak.testsuite.util.WaitUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
-import static org.keycloak.testsuite.model.RequiredUserAction.UPDATE_PASSWORD;
-import static org.keycloak.testsuite.model.RequiredUserAction.VERIFY_EMAIL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWith;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWithLoginUrlOf;
 
@@ -103,26 +102,20 @@ public class TokensTest extends AbstractRealmTest {
     }
 
     @Test
-    public void testLifespanOfVerifyEmailActionToken() throws InterruptedException {
-        tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TIME_UNIT);
+    public void testLifespanOfVerifyEmailActionTokenPropagated() throws InterruptedException {
+        tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS);
         tokenSettingsPage.form().save();
+        assertAlertSuccess();
 
-        addRequiredAction(VERIFY_EMAIL);
-
-        loginToTestRealm();
-//        waitForFeedbackText("You need to change your password to activate your account.");
-
-        verifyEmailPage.assertCurrent();
-        /*waitForTimeout(TIMEOUT / 2);
-
-        driver.navigate().refresh();
-        assertCurrentUrlStartsWith(testRealmAdminConsolePage); // assert still logged in (within lifespan)
-
-        waitForTimeout(TIMEOUT / 2 + 2);
+        loginToTestRealmConsoleAs(testUser);
         driver.navigate().refresh();
 
-        log.debug(driver.getCurrentUrl());
-        assertCurrentUrlStartsWithLoginUrlOf(testRealmPage); // assert logged out (lifespan exceeded)*/
+        tokenSettingsPage.navigateTo();
+        tokenSettingsPage.form().selectOperation(VerifyEmailActionToken.TOKEN_TYPE);
+
+        assertTrue("User action token for verify e-mail expected",
+                tokenSettingsPage.form().isOperationConfigured(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS));
+
     }
 
     private void addRequiredAction(RequiredUserAction userAction) {
@@ -139,10 +132,4 @@ public class TokensTest extends AbstractRealmTest {
         TIME_UNIT.sleep(timeout);
         log.info("Timeout reached");
     }
-
-    public void waitForFeedbackText(String text) {
-        waitGui().until().element(By.className("kc-feedback-text"))
-                .text().contains(text);
-    }
-
 }
