@@ -21,19 +21,26 @@ import org.jboss.arquillian.graphene.page.Page;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.authentication.actiontoken.execactions.ExecuteActionsActionToken;
+import org.keycloak.authentication.actiontoken.idpverifyemail.IdpVerifyAccountLinkActionToken;
+import org.keycloak.authentication.actiontoken.resetcred.ResetCredentialsActionToken;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
+import org.keycloak.models.jpa.entities.RealmAttributes;
 import org.keycloak.testsuite.auth.page.account.Account;
 import org.keycloak.testsuite.console.page.realm.TokenSettings;
 import org.keycloak.testsuite.console.page.users.UserAttributes;
 import org.keycloak.testsuite.model.RequiredUserAction;
 import org.keycloak.testsuite.pages.VerifyEmailPage;
-import org.keycloak.testsuite.util.WaitUtils;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.jboss.arquillian.graphene.Graphene.waitGui;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.keycloak.testsuite.util.URLAssert.assertCurrentUrlStartsWith;
@@ -114,7 +121,39 @@ public class TokensTest extends AbstractRealmTest {
         tokenSettingsPage.form().selectOperation(VerifyEmailActionToken.TOKEN_TYPE);
 
         assertTrue("User action token for verify e-mail expected",
-                tokenSettingsPage.form().isOperationConfigured(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS));
+                tokenSettingsPage.form().isOperationEquals(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS));
+
+    }
+
+    @Test
+    public void testLifespanActionTokenPropagatedForVerifyEmailAndResetPassword() throws InterruptedException {
+        tokenSettingsPage.form().setOperation(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS);
+        tokenSettingsPage.form().setOperation(ResetCredentialsActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.HOURS);
+        tokenSettingsPage.form().save();
+        assertAlertSuccess();
+
+        loginToTestRealmConsoleAs(testUser);
+        driver.navigate().refresh();
+
+        tokenSettingsPage.navigateTo();
+        assertTrue("User action token for verify e-mail expected",
+                tokenSettingsPage.form().isOperationEquals(VerifyEmailActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.DAYS));
+
+        assertTrue("User action token for reset credentials expected",
+                tokenSettingsPage.form().isOperationEquals(ResetCredentialsActionToken.TOKEN_TYPE, TIMEOUT, TimeUnit.HOURS));
+
+        //Verify if values were properly propagated
+        Map<String, Integer> userActionTokens = new HashMap<>();
+        adminClient.realm(testRealmPage.getAuthRealm()).toRepresentation().getAttributes().entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .filter(entry -> entry.getKey().startsWith(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN + "."))
+                .forEach(entry -> userActionTokens.put(entry.getKey().substring(RealmAttributes.ACTION_TOKEN_GENERATED_BY_USER_LIFESPAN.length() + 1), Integer.valueOf(entry.getValue())));
+
+        assertTrue("Action Token attributes list should contain only 2 items", userActionTokens.size() == 2);
+        assertEquals("VerifyEmailActionToken expected to be propagated",
+                userActionTokens.get(VerifyEmailActionToken.TOKEN_TYPE).longValue(), TimeUnit.DAYS.toSeconds(TIMEOUT));
+        assertEquals("ResetCredentialsActionToken expected to be propagated",
+                userActionTokens.get(ResetCredentialsActionToken.TOKEN_TYPE).longValue(), TimeUnit.HOURS.toSeconds(TIMEOUT));
 
     }
 

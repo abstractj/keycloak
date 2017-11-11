@@ -18,6 +18,7 @@
 package org.keycloak.testsuite.console.page.realm;
 
 import org.jboss.arquillian.graphene.page.Page;
+import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.testsuite.page.Form;
 import org.keycloak.testsuite.util.WaitUtils;
 import org.openqa.selenium.WebElement;
@@ -106,7 +107,9 @@ public class TokenSettings extends RealmSettings {
             return actionTokenAttributeTime.getAttribute("value");
         }
 
-        public boolean isOperationConfigured(String tokenType, int timeout, TimeUnit unit) {
+        public boolean isOperationEquals(String tokenType, int timeout, TimeUnit unit) {
+            selectOperation(tokenType);
+
             waitUntilElement(sessionTimeout).is().present();
             actionTokenAttributeSelect.selectByValue(tokenType.toLowerCase());
 
