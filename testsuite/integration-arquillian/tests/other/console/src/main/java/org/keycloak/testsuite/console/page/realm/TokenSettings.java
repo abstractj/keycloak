@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.text.WordUtils.capitalize;
+import static org.keycloak.testsuite.util.WaitUtils.waitForPageToLoad;
 import static org.keycloak.testsuite.util.WaitUtils.waitUntilElement;
 
 /**
@@ -72,6 +73,9 @@ public class TokenSettings extends RealmSettings {
         @FindBy(id = "actionTokenAttributeTime")
         private WebElement actionTokenAttributeTime;
 
+        @FindBy(xpath = "//button[@data-ng-click='resetToDefaultToken(actionTokenId)']")
+        private WebElement resetButton;
+
         public void setSessionTimeout(int timeout, TimeUnit unit) {
             setTimeout(sessionTimeoutUnit, sessionTimeout, timeout, unit);
         }
@@ -85,10 +89,6 @@ public class TokenSettings extends RealmSettings {
             waitUntilElement(sessionTimeout).is().present();
             actionTokenAttributeSelect.selectByValue(tokenType.toLowerCase());
             setTimeout(actionTokenAttributeUnit, actionTokenAttributeTime, time, unit);
-        }
-
-        public void selectOperation(String tokenType) {
-
         }
 
         private void setTimeout(Select timeoutElement, WebElement unitElement,
@@ -115,6 +115,18 @@ public class TokenSettings extends RealmSettings {
 
             return actionTokenAttributeTime.getAttribute("value").equals(Integer.toString(timeout)) &&
                     actionTokenAttributeUnit.getFirstSelectedOption().getText().equals(capitalize(unit.name().toLowerCase()));
+        }
+
+        public void resetActionToken(String tokenType) {
+            selectOperation(tokenType);
+            waitUntilElement(resetButton).is().visible();
+            resetButton.click();
+        }
+
+        public void selectOperation(String tokenType) {
+            //FIXME duplicate line with seTimeout. Maybe refactor
+            waitUntilElement(sessionTimeout).is().present();
+            actionTokenAttributeSelect.selectByValue(tokenType.toLowerCase());
         }
     }
 }
