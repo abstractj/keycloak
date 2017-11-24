@@ -102,7 +102,16 @@ public class X509BrowserLoginTest extends AbstractX509AuthenticationTest {
 
     @Test
     public void loginWithNonSupportedCertExtendedKeyUsage() throws Exception {
-        login(createLoginSubjectEmailWithExtendedKeyUsage("serverAuth"), userId, "test-user@localhost", "test-user@localhost");
+        // Set the X509 authenticator configuration
+        AuthenticatorConfigRepresentation cfg = newConfig("x509-browser-config",
+                createLoginSubjectEmailWithExtendedKeyUsage("serverAuth").getConfig());
+        String cfgId = createConfig(browserExecution.getId(), cfg);
+        Assert.assertNotNull(cfgId);
+
+        loginConfirmationPage.open();
+
+        Assert.assertThat(loginPage.getError(), containsString("Certificate validation's failed.\n" +
+                "Extended Key Usage 'serverAuth' is missing."));
     }
 
     @Test

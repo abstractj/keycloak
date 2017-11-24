@@ -142,7 +142,10 @@ public class X509DirectGrantTest extends AbstractX509AuthenticationTest {
         oauth.clientId("resource-owner");
         OAuthClient.AccessTokenResponse response = oauth.doGrantAccessTokenRequest("secret", "", "", null);
 
-        assertEquals(200, response.getStatusCode());
+        assertEquals(401, response.getStatusCode());
+        assertEquals("invalid_request", response.getError());
+        Assert.assertThat(response.getErrorDescription(), containsString("Extended Key Usage 'serverAuth' is missing."));
+        events.clear();
     }
 
     @Test
