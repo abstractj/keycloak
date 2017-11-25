@@ -1,7 +1,7 @@
 [req]
 prompt = no
 distinguished_name = dn
-req_extensions = v3_req
+req_extensions = usr_cert
 input_password = secret
 
 [dn]
@@ -13,10 +13,13 @@ OU = Keycloak
 CN = test-user@localhost
 emailAddress = test-user@localhost
 
-[ v3_req ]
+[ usr_cert ]
 
 # Extensions to add to a certificate request
 basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+#authorityKeyIdentifier = keyid,issuer
 keyUsage = critical,digitalSignature,nonRepudiation,keyEncipherment
 extendedKeyUsage=critical,clientAuth,emailProtection
 authorityInfoAccess = OCSP;URI:http://localhost:8888/oscp
+
