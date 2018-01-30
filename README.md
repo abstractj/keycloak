@@ -1,4 +1,3 @@
-Keycloak
 ========
 
 Open Source Identity and Access Management for modern Applications and Services.
