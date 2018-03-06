@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -526,12 +527,18 @@ public class JpaUserFederatedStorageProvider implements
     @Override
     public void addRequiredAction(RealmModel realm, String userId, String action) {
         createIndex(realm, userId);
-        FederatedUserRequiredActionEntity entity = new FederatedUserRequiredActionEntity();
-        entity.setUserId(userId);
-        entity.setRealmId(realm.getId());
-        entity.setStorageProviderId(new StorageId(userId).getProviderId());
-        entity.setAction(action);
-        em.persist(entity);
+        boolean requiredActionExists = getRequiredActionEntities(realm, userId).stream()
+                .filter(Objects::nonNull)
+                .anyMatch(s -> s.getAction().matches(action));
+
+        if (!requiredActionExists) {
+            FederatedUserRequiredActionEntity entity = new FederatedUserRequiredActionEntity();
+            entity.setUserId(userId);
+            entity.setRealmId(realm.getId());
+            entity.setStorageProviderId(new StorageId(userId).getProviderId());
+            entity.setAction(action);
+            em.persist(entity);
+        }
 
     }
 
