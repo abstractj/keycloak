@@ -72,14 +72,14 @@ public class TestApplicationResourceProvider implements RealmResourceProvider {
     @Consumes(MediaType.TEXT_PLAIN_UTF_8)
     @Path("/admin/k_logout")
     public void adminLogout(String data) throws JWSInputException {
-        adminLogoutActions.add(new JWSInput(data).readJsonContent(LogoutAction.class));
+        //adminLogoutActions.add(new JWSInput(data).readJsonContent(LogoutAction.class));
     }
 
     @POST
     @Consumes(MediaType.TEXT_PLAIN_UTF_8)
     @Path("/admin/k_push_not_before")
     public void adminPushNotBefore(String data) throws JWSInputException {
-        adminPushNotBeforeActions.add(new JWSInput(data).readJsonContent(PushNotBeforeAction.class));
+        //adminPushNotBeforeActions.add(new JWSInput(data).readJsonContent(PushNotBeforeAction.class));
     }
 
     @POST
