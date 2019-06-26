@@ -17,6 +17,7 @@
 package org.keycloak.testsuite.account;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.junit.Assert;
 import org.junit.Test;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.representations.account.ClientRepresentation;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.*;
@@ -304,6 +306,35 @@ public class AccountRestServiceTest extends AbstractRestServiceTest {
                 .asJson(new TypeReference<List<ClientRepresentation>>() {
                 });
         assertFalse(applications.isEmpty());
+
+        Map<String, ClientRepresentation> apps = applications.stream().collect(Collectors.toMap(x -> x.getClientId(), x -> x));
+        Assert.assertThat(apps.keySet(), containsInAnyOrder("account", "admin-cli", "broker", "security-admin-console", "test-app", "root-url-client", "test-app-scope", "third-party", "test-app-authz", "named-test-app", "var-named-test-app", "direct-grant"));
+
+        ClientRepresentation accountApp = apps.get("account");
+        assertEquals(  "/auth/realms/test/account", accountApp.getUrl());
+
+        ClientRepresentation testApp = apps.get("test-app");
+        assertEquals("http://localhost:8180/auth/realms/master/app/auth", testApp.getUrl());
+
+        ClientRepresentation thirdPartyApp = apps.get("third-party");
+        assertEquals("A third party application", thirdPartyApp.getDescription());
+        assertEquals("http://localhost:8180/auth/realms/master/app/auth", thirdPartyApp.getUrl());
+
+        ClientRepresentation testAppNamedApp = apps.get("var-named-test-app");
+        assertEquals("http://localhost:8180/varnamedapp/base", testAppNamedApp.getUrl());
+
+        ClientRepresentation rootUrlClientApp = apps.get("root-url-client");
+        assertEquals("http://localhost:8180/foo/bar/baz", rootUrlClientApp.getUrl());
+
+        ClientRepresentation authzApp = apps.get("test-app-authz");
+        assertEquals("/test-app-authz", authzApp.getUrl());
+
+
+        ClientRepresentation namedApp = apps.get("named-test-app");
+        assertEquals("http://localhost:8180/namedapp/base", namedApp.getUrl());
+
+        ClientRepresentation appScopeApp = apps.get("test-app-scope");
+        assertNull(appScopeApp.getUrl());
     }
 
     @Test

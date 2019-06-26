@@ -173,6 +173,7 @@
     },
     {
       "clientId" : "third-party",
+      "description" : "A third party application",
       "enabled": true,
       "consentRequired": true,
 
