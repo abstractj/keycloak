@@ -30,6 +30,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserConsentModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 import org.keycloak.representations.account.ClientRepresentation;
 import org.keycloak.representations.account.ConsentRepresentation;
 import org.keycloak.representations.account.ConsentScopeRepresentation;
@@ -56,6 +57,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -63,6 +65,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.keycloak.common.Profile;
+import org.keycloak.storage.StorageId;
 import org.keycloak.theme.Theme;
 
 /**
@@ -240,29 +243,7 @@ public class AccountRestService {
     }
 
     // TODO Federated identities
-
-    /**
-     * Returns the list of available applications in the specified
-     * realm.
-     *
-     * @return list of applications in that realm
-     */
-    @Path("/applications")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getApplications() {
-        checkAccountApiEnabled();
-        auth.require(AccountRoles.VIEW_APPLICATIONS);
-
-        List<ClientModel> clients = realm.getClients();
-
-        List<ClientRepresentation> clientRepresentations = clients.stream()
-                .map(this::modelToRepresentation)
-                .collect(Collectors.toList());
-
-        return Cors.add(request, Response.ok(clientRepresentations)).build();
-    }
-
+    
     /**
      * Returns the applications with the given id in the specified realm.
      *
@@ -462,6 +443,66 @@ public class AccountRestService {
             }
         }
         return consent;
+    }
+
+    @Path("/applications")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @NoCache
+    public Response applications() {
+        checkAccountApiEnabled();
+        auth.requireOneOf(AccountRoles.VIEW_APPLICATIONS, AccountRoles.VIEW_PROFILE);
+
+        List<String> activeClients = new LinkedList<String>();
+        List<UserSessionModel> sessions = session.sessions().getUserSessions(realm, user);
+        for (UserSessionModel s : sessions) {
+            activeClients.addAll(s.getAuthenticatedClientSessions().keySet());
+        }
+
+        List<ClientRepresentation> apps = new LinkedList<>();
+        for (ClientModel client : realm.getClients()) {
+            // Don't show bearerOnly clients
+            if (client.isBearerOnly()) {
+                continue;
+            }
+            apps.add(createClientRepresentation(client, true, activeClients));
+        }
+
+        for (UserConsentModel consent : session.users().getConsents(realm, user.getId())) {
+            ClientModel client = consent.getClient();
+
+            if (!new StorageId(client.getId()).isLocal()) {
+                apps.add(createClientRepresentation(client, false, activeClients));
+            }
+        }
+
+        return Cors.add(request, Response.ok(apps)).auth().allowedOrigins(auth.getToken()).build();
+    }
+
+    private ClientRepresentation createClientRepresentation(ClientModel client, boolean isInternal, List<String> activeClients) {
+        ClientRepresentation clientRep = new ClientRepresentation();
+        clientRep.setClientId(client.getClientId());
+        clientRep.setClientName(client.getName());
+        clientRep.setDescription(client.getDescription());
+        clientRep.setInternal(isInternal);
+        clientRep.setInUse(activeClients.contains(client.getClientId()));
+        String url = client.getRootUrl();
+        if(url != null && client.getBaseUrl() != null) {
+            url = url + client.getBaseUrl();
+        }
+        else if(client.getBaseUrl() != null) {
+            url = client.getBaseUrl();
+        }
+        clientRep.setUrl(url);
+        UserConsentModel consentModel = session.users().getConsentByClient(realm, user.getId(), client.getId());
+        if(consentModel != null) {
+            List<String> scopes = consentModel.getGrantedClientScopes().stream()
+                    .map(s -> s.getName()).collect(Collectors.toList());
+            clientRep.setScopes(scopes);
+            clientRep.setCreatedDate(consentModel.getCreatedDate());
+            clientRep.setLastUpdatedDate(consentModel.getLastUpdatedDate());
+        }
+        return clientRep;
     }
 
     // TODO Logs
