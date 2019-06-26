@@ -19,6 +19,7 @@ package org.keycloak.services.resources.account;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.common.ClientConnection;
+import org.keycloak.common.util.StringPropertyReplacer;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventStoreProvider;
@@ -56,14 +57,18 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.keycloak.common.Profile;
 import org.keycloak.credential.CredentialModel;
+import org.keycloak.storage.StorageId;
 import org.keycloak.theme.Theme;
 
 /**
@@ -243,28 +248,6 @@ public class AccountRestService {
     // TODO Federated identities
 
     /**
-     * Returns the list of available applications in the specified
-     * realm.
-     *
-     * @return list of applications in that realm
-     */
-    @Path("/applications")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getApplications() {
-        checkAccountApiEnabled();
-        auth.require(AccountRoles.VIEW_APPLICATIONS);
-
-        List<ClientModel> clients = realm.getClients();
-
-        List<ClientRepresentation> clientRepresentations = clients.stream()
-                .map(this::modelToRepresentation)
-                .collect(Collectors.toList());
-
-        return Cors.add(request, Response.ok(clientRepresentations)).build();
-    }
-
-    /**
      * Returns the applications with the given id in the specified realm.
      *
      * @param clientId client id to search for
@@ -275,7 +258,7 @@ public class AccountRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApplication(final @PathParam("clientId") String clientId) {
         checkAccountApiEnabled();
-        auth.require(AccountRoles.VIEW_APPLICATIONS);
+        auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.VIEW_APPLICATIONS);
         ClientModel client = realm.getClientByClientId(clientId);
         if (client == null) {
             return Cors.add(request, Response.status(Response.Status.NOT_FOUND).entity("No client with clientId: " + clientId + " found.")).build();
@@ -287,30 +270,31 @@ public class AccountRestService {
     private ClientRepresentation modelToRepresentation(ClientModel model) {
         ClientRepresentation representation = new ClientRepresentation();
         representation.setClientId(model.getClientId());
-        representation.setClientName(getTranslationOrDefault(model.getName()));
+        representation.setClientName(StringPropertyReplacer.replaceProperties(model.getName(), getProperties()));
+        representation.setDescription(model.getDescription());
+        representation.setUserConsentRequired(model.isConsentRequired());
+        representation.setInUse(!session.sessions().getUserSessions(realm, model).isEmpty());
+        representation.setOfflineAccess(session.sessions().getOfflineSessionsCount(realm, model) > 0);
+        representation.setBaseUrl(model.getBaseUrl());
+        UserConsentModel consentModel = session.users().getConsentByClient(realm, user.getId(), model.getId());
+        if(consentModel != null) {
+            representation.setConsent(modelToRepresentation(consentModel));
+        }
         return representation;
     }
 
     private ConsentRepresentation modelToRepresentation(UserConsentModel model) {
-        List<ConsentScopeRepresentation> scopes = model.getGrantedClientScopes().stream()
-                .map(m -> new ConsentScopeRepresentation(m.getId(), m.getName(), getTranslationOrDefault(m.getConsentScreenText())))
+        List<ConsentScopeRepresentation> grantedScopes = model.getGrantedClientScopes().stream()
+                .map(m -> new ConsentScopeRepresentation(m.getId(), m.getName(), StringPropertyReplacer.replaceProperties(m.getConsentScreenText(), getProperties())))
                 .collect(Collectors.toList());
-        return new ConsentRepresentation(scopes, model.getCreatedDate(), model.getLastUpdatedDate());
+        return new ConsentRepresentation(grantedScopes, model.getCreatedDate(), model.getLastUpdatedDate());
     }
 
-    private String getTranslationOrDefault(String key) {
-        if (key == null) {
-            return null;
-        }
-        String defaultValue = key;
-        if (key.startsWith("${")) {
-            key = key.substring(2, key.length() - 1);
-        }
+    private Properties getProperties() {
         try {
-            Properties messages = session.theme().getTheme(Theme.Type.ACCOUNT).getMessages(locale);
-            return messages.getProperty(key, defaultValue);
+            return session.theme().getTheme(Theme.Type.ACCOUNT).getMessages(locale);
         } catch (IOException e) {
-            return key;
+            return null;
         }
     }
 
@@ -325,7 +309,7 @@ public class AccountRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getConsent(final @PathParam("clientId") String clientId) {
         checkAccountApiEnabled();
-        auth.requireOneOf(AccountRoles.VIEW_CONSENT, AccountRoles.MANAGE_CONSENT);
+        auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.VIEW_CONSENT, AccountRoles.MANAGE_CONSENT);
 
         ClientModel client = realm.getClientByClientId(clientId);
         if (client == null) {
@@ -350,7 +334,7 @@ public class AccountRestService {
     @DELETE
     public Response revokeConsent(final @PathParam("clientId") String clientId) {
         checkAccountApiEnabled();
-        auth.require(AccountRoles.MANAGE_CONSENT);
+        auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.MANAGE_CONSENT);
 
         event.event(EventType.REVOKE_GRANT);
         ClientModel client = realm.getClientByClientId(clientId);
@@ -420,7 +404,7 @@ public class AccountRestService {
      */
     private Response upsert(String clientId, ConsentRepresentation consent) {
         checkAccountApiEnabled();
-        auth.require(AccountRoles.MANAGE_CONSENT);
+        auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.MANAGE_CONSENT);
 
         event.event(EventType.GRANT_CONSENT);
         ClientModel client = realm.getClientByClientId(clientId);
@@ -463,7 +447,7 @@ public class AccountRestService {
             availableGrants.put(client.getId(), client);
         }
 
-        for (ConsentScopeRepresentation scopeRepresentation : requested.getScopes()) {
+        for (ConsentScopeRepresentation scopeRepresentation : requested.getGrantedScopes()) {
             ClientScopeModel scopeModel = availableGrants.get(scopeRepresentation.getId());
             if (scopeModel == null) {
                 String msg = String.format("Scope id %s does not exist for client %s.", scopeRepresentation, consent.getClient().getName());
@@ -479,6 +463,25 @@ public class AccountRestService {
     @Path("/linked-accounts")
     public LinkedAccountsResource linkedAccounts() {
         return new LinkedAccountsResource(session, request, client, auth, event, user);
+    }
+
+    @Path("/applications")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @NoCache
+    public Response applications() {
+        checkAccountApiEnabled();
+        auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.VIEW_APPLICATIONS);
+
+        List<ClientRepresentation> apps = new LinkedList<>();
+        for (ClientModel client : realm.getClients()) {
+            if (client.isBearerOnly() || client.getBaseUrl() == null) {
+                continue;
+            }
+            apps.add(modelToRepresentation(client));
+        }
+
+        return Cors.add(request, Response.ok(apps)).auth().allowedOrigins(auth.getToken()).build();
     }
 
     // TODO Logs
