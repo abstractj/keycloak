@@ -53,7 +53,7 @@ function removeHidden(items: ContentItem[]): ContentItem[] {
             visible.push(item);
             item.content = removeHidden(item.content);
             if (item.content.length === 0) {
-                visible.pop(); // remove empty expansion
+                visible.pop(); // remove empty expansion more data
             }
         } else {
             visible.push(item);
