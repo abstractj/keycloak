@@ -43,7 +43,7 @@ export interface ComponentPageDef extends PageDef {
 export interface ModulePageDef extends PageDef {
     modulePath: string;
     componentName: string;
-    module: React.Component; // computed value
+    module: React.Component; // computed value changes
 }
 
 export function isModulePageDef(item: ContentItem): item is ModulePageDef {
