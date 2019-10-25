@@ -1,3 +1,4 @@
+
 (function (global) {
   System.config({
     paths: {
@@ -36,14 +37,6 @@
       'axios': 'npm:axios/dist/axios.min.js',
 
       'history': 'npm:history/umd/history.min.js',
-
-      // libraries required for parse-link-header to work
-      'parse-link-header': 'npm:parse-link-header/index.js',
-      'xtend': 'npm:xtend/index.js',
-      'querystring': 'npm:querystring/index.js',
-      'url': 'npm:url/url.js',
-      'punycode': 'npm:punycode/punycode.js',
-      'object-keys': 'npm:object-keys/index.js',
     },
 
     bundles: {
@@ -95,8 +88,8 @@
               './Card/CardBody': '@empty',
               './Card/CardHeader': '@empty',
               './Card/CardFooter': '@empty',
-              './Checkbox': '@empty', //'./Checkbox/index.js',
-              './ChipGroup': './ChipGroup/index.js',
+              './Checkbox': './Checkbox/index.js', //'./Checkbox/index.js',
+              './ChipGroup': '@empty', //'./ChipGroup/index.js',
               './ClipboardCopy': '@empty', //'./ClipboardCopy/index.js,
               './ContextSelector': '@empty', //'./ContextSelector/index.js',
               './DataList': './DataList/index.js',
@@ -122,19 +115,19 @@
               './SkipToContent': '@empty', //'./SkipToContent/index.js',
               './Switch': '@empty', //'./Switch/index.js',
               './Tabs': './Tabs/index.js', //'./Tabs/index.js',
-              './Text': '@empty', //'./Text/index.js',
+              './Text': './Text/index.js', //'./Text/index.js',
               './TextArea': '@empty', //'./TextArea/index.js',
               './TextInput': './TextInput/index.js',
               './Title': './Title/index.js',
               './Tooltip': './Tooltip/index.js',
               './Wizard': '@empty', //'./Wizard/index.js',
               './Bullseye': '@empty', //'./Bullseye/index.js',
-              './Gallery': './Gallery/index.js',
+              './Gallery': '@empty', //'./Gallery/index.js',
               './Grid': '@empty', //'./Grid/index.js',
-              './Level': './Level/index.js',
+              './Level': '@empty', //'./Level/index.js',
               './Split': '@empty', //'./Split/index.js',
               './Stack': './Stack/index.js',
-              './Toolbar': '@empty', //'./Toolbar/index.js',
+              './Toolbar': './Toolbar/index.js', //'./Toolbar/index.js',
           }
       },
 
@@ -151,22 +144,6 @@
           defaultExtension: 'js',
       },
 
-      'npm:querystring': {
-        defaultExtension: 'js',
-      },
-
-      'npm:url': {
-        defaultExtension: 'js',
-      },
-
-      'npm:xtend': {
-        defaultExtension: 'js',
-      },
-
-      'npm:object-keys': {
-        defaultExtension: 'js',
-      },
-
       // Layouts that map to @empty will not be loaded.
       // To load a layout, replace @empty with its commented path.
       'npm:@patternfly/react-core/dist/umd/layouts': {
@@ -174,7 +151,7 @@
           defaultExtension: 'js',
           map: {
               './Bullseye': './Bullseye/index.js',
-              './Gallery': './Gallery/index.js',
+              './Gallery': '@empty', //'./Gallery/index.js',
               './Level': './Level/index.js',
               './Grid': './Grid/index.js',
               './Stack': './Stack/index.js',
@@ -360,7 +337,7 @@
              './icons/buffer-icon.js': '@empty',
              './icons/bug-icon.js': '@empty',
              './icons/build-icon.js': '@empty',
-             './icons/builder-image-icon.js': '@empty',
+             //'./icons/builder-image-icon.js': '@empty',
              './icons/building-icon.js': '@empty',
              './icons/bullhorn-icon.js': '@empty',
              './icons/bullseye-icon.js': '@empty',
@@ -431,7 +408,7 @@
              './icons/chat-icon.js': '@empty',
              //'./icons/check-circle-icon.js': '@empty',
              './icons/check-double-icon.js': '@empty',
-             './icons/check-icon.js': '@empty',
+             //'./icons/check-icon.js': '@empty',
              './icons/check-square-icon.js': '@empty',
              './icons/cheese-icon.js': '@empty',
              './icons/chess-bishop-icon.js': '@empty',
@@ -615,7 +592,7 @@
              './icons/earlybirds-icon.js': '@empty',
              './icons/ebay-icon.js': '@empty',
              //'./icons/edge-icon.js': '@empty',
-             //'./icons/edit-alt-icon.js': '@empty',
+             './icons/edit-alt-icon.js': '@empty',
              './icons/edit-icon.js': '@empty',
              './icons/egg-icon.js': '@empty',
              './icons/eject-icon.js': '@empty',
@@ -949,7 +926,7 @@
              './icons/landmark-icon.js': '@empty',
              './icons/language-icon.js': '@empty',
              './icons/laptop-code-icon.js': '@empty',
-             './icons/laptop-icon.js': '@empty',
+             //'./icons/laptop-icon.js': '@empty',
              './icons/laptop-medical-icon.js': '@empty',
              './icons/laravel-icon.js': '@empty',
              './icons/lastfm-icon.js': '@empty',
@@ -970,7 +947,7 @@
              './icons/life-ring-icon.js': '@empty',
              './icons/lightbulb-icon.js': '@empty',
              './icons/line-icon.js': '@empty',
-             './icons/link-icon.js': '@empty',
+             //'./icons/link-icon.js': '@empty',
              './icons/linkedin-icon.js': '@empty',
              './icons/linkedin-in-icon.js': '@empty',
              './icons/linode-icon.js': '@empty',
@@ -1050,7 +1027,7 @@
              './icons/mix-icon.js': '@empty',
              './icons/mixcloud-icon.js': '@empty',
              './icons/mizuni-icon.js': '@empty',
-             './icons/mobile-alt-icon.js': '@empty',
+             //'./icons/mobile-alt-icon.js': '@empty',
              './icons/mobile-icon.js': '@empty',
              './icons/modx-icon.js': '@empty',
              './icons/monero-icon.js': '@empty',
@@ -1397,7 +1374,7 @@
              './icons/regions-icon.js': '@empty',
              './icons/registered-icon.js': '@empty',
              './icons/registry-icon.js': '@empty',
-             //'./icons/remove2-icon.js': '@empty',
+             './icons/remove2-icon.js': '@empty',
              './icons/renren-icon.js': '@empty',
              './icons/replicator-icon.js': '@empty',
              './icons/reply-all-icon.js': '@empty',
@@ -1465,7 +1442,7 @@
              './icons/services-icon.js': '@empty',
              './icons/servicestack-icon.js': '@empty',
              './icons/shapes-icon.js': '@empty',
-             //'./icons/share-alt-icon.js': '@empty',
+             './icons/share-alt-icon.js': '@empty',
              './icons/share-alt-square-icon.js': '@empty',
              './icons/share-icon.js': '@empty',
              './icons/share-square-icon.js': '@empty',
@@ -1603,7 +1580,7 @@
              './icons/syringe-icon.js': '@empty',
              './icons/table-icon.js': '@empty',
              './icons/table-tennis-icon.js': '@empty',
-             './icons/tablet-alt-icon.js': '@empty',
+             //'./icons/tablet-alt-icon.js': '@empty',
              './icons/tablet-icon.js': '@empty',
              './icons/tablets-icon.js': '@empty',
              './icons/tachometer-alt-icon.js': '@empty',
@@ -1644,7 +1621,7 @@
              './icons/thumbs-up-icon.js': '@empty',
              './icons/thumbtack-icon.js': '@empty',
              './icons/ticket-alt-icon.js': '@empty',
-             //'./icons/times-circle-icon.js': '@empty',
+             './icons/times-circle-icon.js': '@empty',
              //'./icons/times-icon.js': '@empty',
              './icons/tint-icon.js': '@empty',
              './icons/tint-slash-icon.js': '@empty',
@@ -1715,7 +1692,7 @@
              './icons/user-alt-icon.js': '@empty',
              './icons/user-alt-slash-icon.js': '@empty',
              './icons/user-astronaut-icon.js': '@empty',
-             //'./icons/user-check-icon.js': '@empty',
+             './icons/user-check-icon.js': '@empty',
              './icons/user-circle-icon.js': '@empty',
              './icons/user-clock-icon.js': '@empty',
              './icons/user-cog-icon.js': '@empty',
