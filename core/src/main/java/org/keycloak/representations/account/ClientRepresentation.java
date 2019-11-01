@@ -1,5 +1,9 @@
 package org.keycloak.representations.account;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * Created by st on 29/03/17.
  */
@@ -10,7 +14,8 @@ public class ClientRepresentation {
     private boolean internal;
     private boolean inUse;
     private String url;
-    private ConsentRepresentation consent;
+    private Set<String> scopes;
+    private Long createdDate;
 
     public String getClientId() {
         return clientId;
@@ -60,11 +65,23 @@ public class ClientRepresentation {
         this.url = url;
     }
 
-    public ConsentRepresentation getConsent() {
-        return consent;
+    public Set<String> getScopes() {
+        return scopes;
     }
 
-    public void setConsent(ConsentRepresentation consent) {
-        this.consent = consent;
+    public void setScopes(List<ConsentScopeRepresentation> scopes) {
+        Set<String> scopeSet = scopes.stream()
+                .map(ConsentScopeRepresentation::getName)
+                .collect(Collectors.toSet());
+        this.scopes = scopeSet;
     }
+
+    public Long getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Long createdDate) {
+        this.createdDate = createdDate;
+    }
+
 }

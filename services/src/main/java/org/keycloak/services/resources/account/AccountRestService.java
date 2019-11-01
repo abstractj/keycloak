@@ -496,7 +496,9 @@ public class AccountRestService {
         clientRep.setUrl(url);
         UserConsentModel consentModel = session.users().getConsentByClient(realm, user.getId(), client.getId());
         if(consentModel != null) {
-            clientRep.setConsent(modelToRepresentation(consentModel));
+            ConsentRepresentation consentRep = modelToRepresentation(consentModel);
+            clientRep.setScopes(consentRep.getScopes());
+            clientRep.setCreatedDate(consentRep.getCreatedDate());
         }
         return clientRep;
     }
