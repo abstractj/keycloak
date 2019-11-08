@@ -330,7 +330,7 @@ public class AccountRestService {
     @DELETE
     public Response revokeConsent(final @PathParam("clientId") String clientId) {
         checkAccountApiEnabled();
-        auth.require(AccountRoles.MANAGE_CONSENT);
+        auth.requireOneOf(AccountRoles.MANAGE_CONSENT, AccountRoles.MANAGE_ACCOUNT);
 
         event.event(EventType.REVOKE_GRANT);
         ClientModel client = realm.getClientByClientId(clientId);
