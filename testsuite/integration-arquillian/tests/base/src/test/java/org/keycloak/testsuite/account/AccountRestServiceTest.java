@@ -287,7 +287,16 @@ public class AccountRestServiceTest extends AbstractRestServiceTest {
     }
 
     @Test
-    public void listApplications() throws IOException {
+    public void listApplications() throws Exception {
+        oauth.clientId("in-use-client");
+        OAuthClient.AccessTokenResponse tokenResponse = oauth.doGrantAccessTokenRequest("secret1", "view-applications-access", "password");
+        Assert.assertNull(tokenResponse.getErrorDescription());
+
+        oauth.scope(OAuth2Constants.OFFLINE_ACCESS);
+        oauth.clientId("offline-client");
+        OAuthClient.AccessTokenResponse offlineTokenResponse = oauth.doGrantAccessTokenRequest("secret1", "view-applications-access", "password");
+        Assert.assertNull(offlineTokenResponse.getErrorDescription());
+
         TokenUtil token = new TokenUtil("view-applications-access", "password");
         List<ClientRepresentation> applications = SimpleHttp
                 .doGet(getAccountUrl("applications"), httpClient)
@@ -297,58 +306,12 @@ public class AccountRestServiceTest extends AbstractRestServiceTest {
                 });
         assertFalse(applications.isEmpty());
 
-        Map<String, ClientRepresentation> apps = applications.stream().collect(Collectors.toMap(x -> x.getClientId(), x -> x));
-        Assert.assertThat(apps.keySet(), containsInAnyOrder("account", "account-console", "security-admin-console", "test-app", "root-url-client", "third-party", "test-app-authz", "named-test-app", "var-named-test-app", "offline-client"));
 
-        assertClientRep(apps.get("account"), "Account", null, false, false, false, "/realms/test/account/");
-        assertClientRep(apps.get("account-console"), "Account Console", null, false, false, false, "/realms/test/account/");
-        assertClientRep(apps.get("security-admin-console"), "Security Admin Console", null, false, false, false, "/admin/test/console/");
-        assertClientRep(apps.get("test-app"), null, null, false, false, false, "http://localhost:8180/auth/realms/master/app/auth");
-        assertClientRep(apps.get("root-url-client"), null, null, false, false, false, "/baz");
-        assertClientRep(apps.get("third-party"), null, "A third party application", false, false, false, "http://localhost:8180/auth/realms/master/app/auth");
-        assertClientRep(apps.get("test-app-authz"), null, null, false, false, false, "/test-app-authz");
-        assertClientRep(apps.get("named-test-app"), "My Named Test App", null, false, false, false, "http://localhost:8180/namedapp/base");
-        assertClientRep(apps.get("var-named-test-app"), "Test App Named - Account", null, false, false, false, "http://localhost:8180/varnamedapp/base");
-        assertClientRep(apps.get("offline-client"), "Offline Client", null, false, false, false, offlineClientAppUri);
-    }
-
-    @Test
-    public void listApplicationsAccountInUse() throws Exception {
-        accountPage.setAuthRealm(testRealm().toRepresentation().getRealm());
-        accountPage.navigateTo();
-        loginPage.form().login("view-account-access", "password");
-        accountPage.assertCurrent();
-
-        TokenUtil token = new TokenUtil("view-account-access", "password");
-        List<ClientRepresentation> applications = SimpleHttp
-                .doGet(getAccountUrl("applications"), httpClient)
-                .header("Accept", "application/json")
-                .auth(token.getToken())
-                .asJson(new TypeReference<List<ClientRepresentation>>() {
-                });
-        assertFalse(applications.isEmpty());
 
         Map<String, ClientRepresentation> apps = applications.stream().collect(Collectors.toMap(x -> x.getClientId(), x -> x));
-        assertClientRep(apps.get("account"), "Account", null, false, true, false, "/realms/test/account/");
-    }
+        Assert.assertThat(apps.keySet(), containsInAnyOrder("in-use-client", "offline-client"));
 
-    @Test
-    public void listApplicationsOfflineAccess() throws Exception {
-        oauth.scope(OAuth2Constants.OFFLINE_ACCESS);
-        oauth.clientId("offline-client");
-        OAuthClient.AccessTokenResponse tokenResponse = oauth.doGrantAccessTokenRequest("secret1", "test-user@localhost", "password");
-        Assert.assertNull(tokenResponse.getErrorDescription());
-
-        TokenUtil token = new TokenUtil("offline-access", "password");
-        List<ClientRepresentation> applications = SimpleHttp
-                .doGet(getAccountUrl("applications"), httpClient)
-                .header("Accept", "application/json")
-                .auth(token.getToken())
-                .asJson(new TypeReference<List<ClientRepresentation>>() {
-                });
-        assertFalse(applications.isEmpty());
-
-        Map<String, ClientRepresentation> apps = applications.stream().collect(Collectors.toMap(x -> x.getClientId(), x -> x));
+        assertClientRep(apps.get("in-use-client"), "In Use Client", null, false, true, false, inUseClientAppUri);
         assertClientRep(apps.get("offline-client"), "Offline Client", null, false, true, true, offlineClientAppUri);
     }
 
@@ -751,7 +714,6 @@ public class AccountRestServiceTest extends AbstractRestServiceTest {
                 .asResponse();
         assertEquals(404, response.getStatus());
     }
-
 
     @Test
     public void deleteConsentWithoutPermission() throws IOException {

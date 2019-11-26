@@ -57,6 +57,8 @@ public abstract class AbstractRestServiceTest extends AbstractTestRealmKeycloakT
 
     protected CloseableHttpClient httpClient;
 
+    protected String inUseClientAppUri = APP_ROOT + "/in-use-client";
+
     protected String offlineClientAppUri = APP_ROOT + "/offline-client";
 
     @Before
@@ -77,18 +79,25 @@ public abstract class AbstractRestServiceTest extends AbstractTestRealmKeycloakT
     public void configureTestRealm(RealmRepresentation testRealm) {
         testRealm.getUsers().add(UserBuilder.create().username("no-account-access").password("password").build());
         testRealm.getUsers().add(UserBuilder.create().username("view-account-access").role("account", "view-profile").password("password").build());
-        testRealm.getUsers().add(UserBuilder.create().username("view-applications-access").role("account", "view-applications").password("password").build());
+        testRealm.getUsers().add(UserBuilder.create().username("view-applications-access").addRoles("offline_access").role("account", "view-applications").password("password").build());
         testRealm.getUsers().add(UserBuilder.create().username("view-consent-access").role("account", "view-consent").password("password").build());
         testRealm.getUsers().add(UserBuilder.create().username("manage-consent-access").role("account", "manage-consent").password("password").build());
-        testRealm.getUsers().add(UserBuilder.create().username("offline-access").addRoles("user", "offline_access").role("account", "manage-account").password("password").build());
 
-        org.keycloak.representations.idm.ClientRepresentation app = ClientBuilder.create().clientId("offline-client")
+        org.keycloak.representations.idm.ClientRepresentation inUseApp = ClientBuilder.create().clientId("in-use-client")
+                .id(KeycloakModelUtils.generateId())
+                .name("In Use Client")
+                .baseUrl(inUseClientAppUri)
+                .directAccessGrants()
+                .secret("secret1").build();
+        testRealm.getClients().add(inUseApp);
+
+        org.keycloak.representations.idm.ClientRepresentation offlineApp = ClientBuilder.create().clientId("offline-client")
                 .id(KeycloakModelUtils.generateId())
                 .name("Offline Client")
                 .baseUrl(offlineClientAppUri)
                 .directAccessGrants()
                 .secret("secret1").build();
-        testRealm.getClients().add(app);
+        testRealm.getClients().add(offlineApp);
     }
 
     protected String getAccountUrl(String resource) {

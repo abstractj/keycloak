@@ -25,12 +25,14 @@ import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventStoreProvider;
 import org.keycloak.events.EventType;
 import org.keycloak.models.AccountRoles;
+import org.keycloak.models.AuthenticatedClientSessionModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ClientScopeModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserConsentModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 import org.keycloak.representations.account.ClientRepresentation;
 import org.keycloak.representations.account.ConsentRepresentation;
 import org.keycloak.representations.account.ConsentScopeRepresentation;
@@ -62,13 +64,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.keycloak.common.Profile;
 import org.keycloak.credential.CredentialModel;
-import org.keycloak.storage.StorageId;
 import org.keycloak.theme.Theme;
 
 /**
@@ -264,17 +263,27 @@ public class AccountRestService {
             return Cors.add(request, Response.status(Response.Status.NOT_FOUND).entity("No client with clientId: " + clientId + " found.")).build();
         }
 
-        return Cors.add(request, Response.ok(modelToRepresentation(client))).build();
+        List<String> inUseClients = new LinkedList<>();
+        if(!session.sessions().getUserSessions(realm, client).isEmpty()) {
+            inUseClients.add(clientId);
+        }
+
+        List<String> offlineClients = new LinkedList<>();
+        if(session.sessions().getOfflineSessionsCount(realm, client) > 0) {
+            offlineClients.add(clientId);
+        }
+
+        return Cors.add(request, Response.ok(modelToRepresentation(client, inUseClients, offlineClients))).build();
     }
 
-    private ClientRepresentation modelToRepresentation(ClientModel model) {
+    private ClientRepresentation modelToRepresentation(ClientModel model, List<String> inUseClients, List<String> offlineClients) {
         ClientRepresentation representation = new ClientRepresentation();
         representation.setClientId(model.getClientId());
         representation.setClientName(StringPropertyReplacer.replaceProperties(model.getName(), getProperties()));
         representation.setDescription(model.getDescription());
         representation.setUserConsentRequired(model.isConsentRequired());
-        representation.setInUse(!session.sessions().getUserSessions(realm, model).isEmpty());
-        representation.setOfflineAccess(session.sessions().getOfflineSessionsCount(realm, model) > 0);
+        representation.setInUse(inUseClients.contains(model.getClientId()));
+        representation.setOfflineAccess(offlineClients.contains(model.getClientId()));
         representation.setBaseUrl(model.getBaseUrl());
         UserConsentModel consentModel = session.users().getConsentByClient(realm, user.getId(), model.getId());
         if(consentModel != null) {
@@ -473,12 +482,47 @@ public class AccountRestService {
         checkAccountApiEnabled();
         auth.requireOneOf(AccountRoles.MANAGE_ACCOUNT, AccountRoles.VIEW_APPLICATIONS);
 
+        List<ClientModel> clients = new LinkedList<>();
+        List<String> inUseClients = new LinkedList<String>();
+        List<UserSessionModel> sessions = session.sessions().getUserSessions(realm, user);
+        for(UserSessionModel s : sessions) {
+            for (AuthenticatedClientSessionModel a : s.getAuthenticatedClientSessions().values()) {
+                ClientModel client = a.getClient();
+                if(!client.isBearerOnly() && client.getBaseUrl() != null) {
+                    clients.add(client);
+                    inUseClients.add(client.getClientId());
+                }
+            }
+        }
+
+        List<String> offlineClients = new LinkedList<String>();
+        List<UserSessionModel> offlineSessions = session.sessions().getOfflineUserSessions(realm, user);
+        for(UserSessionModel s : offlineSessions) {
+            for(AuthenticatedClientSessionModel a : s.getAuthenticatedClientSessions().values()) {
+                ClientModel client = a.getClient();
+                if(!client.isBearerOnly() && client.getBaseUrl() != null) {
+                    if(!clients.contains(client)) {
+                        clients.add(client);
+                    }
+                    offlineClients.add(client.getClientId());
+                }
+            }
+        }
+
+        List<UserConsentModel> consents = session.users().getConsents(realm, user.getId());
+        for (UserConsentModel consent : consents) {
+            ClientModel client = consent.getClient();
+            if (client.isConsentRequired() && !clients.contains(client)) {
+                clients.add(client);
+            }
+        }
+
         List<ClientRepresentation> apps = new LinkedList<>();
-        for (ClientModel client : realm.getClients()) {
+        for (ClientModel client : clients) {
             if (client.isBearerOnly() || client.getBaseUrl() == null) {
                 continue;
             }
-            apps.add(modelToRepresentation(client));
+            apps.add(modelToRepresentation(client, inUseClients, offlineClients));
         }
 
         return Cors.add(request, Response.ok(apps)).auth().allowedOrigins(auth.getToken()).build();
