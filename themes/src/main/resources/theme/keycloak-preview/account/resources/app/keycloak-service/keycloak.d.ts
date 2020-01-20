@@ -34,7 +34,8 @@ declare namespace Keycloak {
 	type KeycloakResponseMode = 'query'|'fragment';
 	type KeycloakResponseType = 'code'|'id_token token'|'code id_token token';
 	type KeycloakFlow = 'standard'|'implicit'|'hybrid';
-	type KeycloakPromiseType = 'native'
+	type KeycloakPromiseType = 'native';
+    type KeycloakPkceMethod = 'S256';
 
 	interface KeycloakInitOptions {
 		/**
@@ -117,6 +118,12 @@ declare namespace Keycloak {
 		 * Keycloak specific promise objects.
 		 */
 		promiseType?: KeycloakPromiseType;
+
+    	/**
+		 * Set the Proof Key for Code Exchange (PKCE) method to use. if not set PKCE
+     	 * won't be used
+		 */
+		pkceMethod?: KeycloakPkceMethod;
 	}
 
 	interface KeycloakLoginOptions {
@@ -163,9 +170,9 @@ declare namespace Keycloak {
 		 */
 		idpHint?: string;
 
-	        /**
+    	/**
 		 * Sets the 'ui_locales' query param in compliance with section 3.1.2.1
-                 * of the OIDC 1.0 specification.
+     	 * of the OIDC 1.0 specification.
 		 */
 		locale?: string;
                 
