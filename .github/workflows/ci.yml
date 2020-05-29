@@ -25,8 +25,7 @@ jobs:
           restore-keys: ${{ env.COMPUTED_RESTORE_KEY }}
           restore-only: ${{ github.event_name == 'pull_request' }}
       - name: Build
-        run:
-          mvn clean install -B -nsu -DskipTests -Pdistribution
+        run: mvn clean install -B -DskipTests -Pdistribution
       - name: Tar Maven Repo
         shell: bash
         run: tar -czvf maven-repo.tgz -C ~ .m2/repository
@@ -54,8 +53,6 @@ jobs:
         shell: bash
         run: tar -xzvf maven-repo.tgz -C ~
       - name: Build testsuite
-        shell: bash
-        run: cd testsuite && mvn clean install -B -nsu -Pauth-server-wildfly -DskipTests
+        run: mvn clean install -B -Pauth-server-wildfly -DskipTests -f testsuite/pom.xml
       - name: Run base tests
-        run: cd testsuite/integration-arquillian/tests/base/ && mvn clean install -B -nsu -Pauth-server-wildfly | ../../../../misc/log/trimmer.sh
-
+        run: mvn clean install -B -Pauth-server-wildfly -f testsuite/integration-arquillian/tests/base/pom.xml | misc/log/trimmer.sh && echo ${PIPESTATUS[0]}
