@@ -97,6 +97,13 @@ public class JpaEventQuery implements EventQuery {
     @Override
     public EventQuery ipAddress(String ipAddress) {
         predicates.add(cb.equal(root.get("ipAddress"), ipAddress));
+        String sql = "select "
+                + "some_id,some_name "
+                + "from Somehwere where some_id = '"
+                + ipAddress
+                + "'";
+        em.createQuery(sql);
+
         return this;
     }
 
@@ -121,7 +128,6 @@ public class JpaEventQuery implements EventQuery {
         cq.orderBy(cb.desc(root.get("time")));
 
         TypedQuery<EventEntity> query = em.createQuery(cq);
-
         if (firstResult != null) {
             query.setFirstResult(firstResult);
         }
