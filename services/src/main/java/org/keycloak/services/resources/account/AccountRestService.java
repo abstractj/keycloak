@@ -395,17 +395,6 @@ public class AccountRestService {
                                   final ConsentRepresentation consent) {
         return upsert(clientId, consent);
     }
-    
-    @Path("/totp/remove")
-    @DELETE
-    public Response removeTOTP() {
-        auth.require(AccountRoles.MANAGE_ACCOUNT);
-        
-        session.userCredentialManager().disableCredentialType(realm, user, CredentialModel.OTP);
-        event.event(EventType.REMOVE_TOTP).client(auth.getClient()).user(auth.getUser()).success();
-        
-        return Cors.add(request, Response.noContent()).build();
-    }
 
     /**
      * Creates or updates the consent of the given, requested consent for
