@@ -661,4 +661,27 @@ if (result != expression "${jboss.mail.server.port:25}") of /socket-binding-grou
     echo
 end-if
 
+# Migrate from 12.0.0
+if (outcome == failed) of /extension=org.wildfly.extension.microprofile.openapi-smallrye/:read-resource
+    echo Adding microprofile.openapi-smallrye extension...
+    /extension=org.wildfly.extension.microprofile.openapi-smallrye/:add(module=org.wildfly.extension.microprofile.openapi-smallrye)
+    echo
+end-if
+
+if (outcome == failed) of /subsystem=microprofile-openapi-smallrye/:read-resource
+    echo Adding microprofile-openapi-smallrye subsystem
+    /subsystem=microprofile-openapi-smallrye/:add
+    /subsystem=microprofile-openapi-smallrye/:write-attribute(name=security-enabled,value=false)
+    /subsystem=microprofile-openapi-smallrye/:write-attribute(name=exposed-subsystems,value=[*])
+    echo
+end-if
+
+if (result == "Keycloak") of :read-attribute(name=product-name)
+    echo Adding microprofile-openapi-smallrye subsystem prefix attribute to Keycloak
+    /subsystem=microprofile-openapi-smallrye/:write-attribute(name=prefix,value=${wildfly.metrics.prefix:wildfly})
+else
+    echo Adding microprofile-openapi-smallrye subsystem prefix attribute to RH-SSO
+    /subsystem=microprofile-openapi-smallrye/:write-attribute(name=prefix,value=${wildfly.metrics.prefix:jboss})
+end-if
+
 echo *** End Migration ***

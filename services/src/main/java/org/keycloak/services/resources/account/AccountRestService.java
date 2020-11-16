@@ -79,10 +79,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
+@Tag(name = "Account REST endpoint", description = "Documentation for the Account REST endpoint")
 public class AccountRestService {
 
     @Context
@@ -125,6 +130,8 @@ public class AccountRestService {
      */
     @Path("/")
     @GET
+    @Operation(description = "Get account information")
+    @APIResponse(responseCode = "200", description = "Account representation")
     @Produces(MediaType.APPLICATION_JSON)
     @NoCache
     public UserRepresentation account() {
