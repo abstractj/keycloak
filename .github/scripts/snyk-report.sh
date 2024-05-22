@@ -10,7 +10,13 @@ check_github_issue_exists() {
     local search_url="https://api.github.com/search/issues?q=$CVE_ID+is%3Aissue+sort%3Aupdated-desc+repo:$KEYCLOAK_REPO"
     local response=$(curl -s -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" "$search_url")
     local count=$(echo "$response" | jq '.total_count')
-    
+
+    # Check for bad credentials
+    if printf "%s" "$response" | jq -e '.message == "Bad credentials"' > /dev/null; then
+        printf "Error: Bad credentials\n%s\n $response"
+        exit 1
+    fi
+
     if [[ $count -gt 0 ]]; then
         return 0  
     else
