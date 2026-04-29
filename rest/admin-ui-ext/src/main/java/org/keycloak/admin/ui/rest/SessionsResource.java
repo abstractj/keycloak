@@ -21,6 +21,9 @@ import org.keycloak.models.light.LightweightUserAdapter;
 import org.keycloak.services.resources.admin.fgap.AdminPermissionEvaluator;
 import org.keycloak.utils.StringUtil;
 
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotFoundException;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -97,6 +100,10 @@ public class SessionsResource {
                                                         @QueryParam("first") @DefaultValue("0") int first,
                                                         @QueryParam("max") @DefaultValue("10") int max) {
         ClientModel clientModel = realm.getClientById(clientId);
+        if (clientModel == null) {
+            if (auth.clients().canList()) throw new NotFoundException("Could not find client");
+            else throw new ForbiddenException();
+        }
         auth.clients().requireView(clientModel);
 
         var stream = switch (type) {
