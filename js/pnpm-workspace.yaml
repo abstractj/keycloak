@@ -38,3 +38,11 @@ overrides:
 allowBuilds:
   '@swc/core': true
   esbuild: true
+minimumReleaseAgeExclude:
+  - jquery@3.5.0
+  - bootstrap@3.4.2
+  - lodash@4.17.23
+  - mdast-util-to-hast@13.2.1
+  - lodash@4.17.24
+  - simple-git@3.36.0
+  - uuid@13.0.1

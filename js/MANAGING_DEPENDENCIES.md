@@ -97,7 +97,7 @@ Dependabot may open these PRs automatically for patch/minor updates in `js/`.
 
 ```bash
 pnpm audit --fix              # default method: override (adds overrides)
-pnpm audit --fix --fix=update # tries to update lockfile versions
+pnpm audit --fix update       # tries to update lockfile versions
 pnpm audit --fix -i           # interactive selection
 ```
 
