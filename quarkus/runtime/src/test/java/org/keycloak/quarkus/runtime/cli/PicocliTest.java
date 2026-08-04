@@ -273,6 +273,13 @@ public class PicocliTest extends AbstractConfigurationTest {
     }
     
     @Test
+    public void testUnknownSpiOptionMasked() {
+        putEnvVar("KC_SPI_CUSTOM__ID__SECRET", "custom-secret");
+        NonRunningPicocli nonRunningPicocli = pseudoLaunch("show-config");
+        assertThat(nonRunningPicocli.getOutString(), not(containsString("custom-secret")));
+    }
+    
+    @Test
     public void testShowConfigCommandHidesSecondaryMappedVaultPasswordLegacyFormat() {
         NonRunningPicocli nonRunningPicocli = pseudoLaunch("show-config", "--spi-vault-keystore-pass=mapped-vault-secret");
         assertThat(nonRunningPicocli.getOutString(), not(containsString("mapped-vault-secret")));
