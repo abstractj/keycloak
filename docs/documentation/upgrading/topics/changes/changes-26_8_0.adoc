@@ -51,6 +51,10 @@ This changes the behavior of identity provider account linking by email, of admi
 and of the verifiable credential offer emails of the experimental OID4VCI feature.
 The *Trust Email* setting of identity providers and LDAP federation is not affected, as it is an explicit decision of the administrator to trust the email from the external source.
 
+=== `show-conifg` will mask all SPI option values
+
+The `show-config` command will mask all SPI option values. The command is not currently aware of provider factory configuration property metadata, so it cannot determine if a property is marked as `isSecret`.
+
 // ------------------------ Deprecated features ------------------------ //
 == Deprecated features
 
