@@ -104,7 +104,8 @@ public final class Configuration {
     public static synchronized SmallRyeConfig getConfig() {
         if (config == null) {
             // we're manually adding the default sources to have control over the EnvConfigSource
-            config = ConfigUtils.emptyConfigBuilder().setAddDefaultSources(false).addDiscoveredSources()
+            config = ConfigUtils.emptyConfigBuilder().setAddDefaultSources(false).setAddPropertiesSources(true)
+                    .addDiscoveredSources()
                     .withCustomizers(new ConfigBuilderCustomizer())
                     .withSources(new SysPropConfigSource())
                     .withSources(new DotEnvConfigSourceProvider()

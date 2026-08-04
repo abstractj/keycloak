@@ -19,6 +19,7 @@ package org.keycloak.quarkus.runtime.configuration;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class KcEnvConfigSource extends PropertiesConfigSource {
     }
 
     private static Map<String, String> buildProperties(Map<String, String> env) {
-        Map<String, String> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>(env);
 
         for (Map.Entry<String, String> entry : env.entrySet()) {
             String key = entry.getKey();
@@ -111,8 +112,15 @@ public class KcEnvConfigSource extends PropertiesConfigSource {
         env.putAll(ENV_OVERRIDE);
         
         // create the quarkus env from anything not applicable to the KcEnvConfigSource
-        Map<String, String> filteredEnv = new HashMap<>(env);
-        filteredEnv.keySet().removeIf(key -> key.startsWith(KC_PREFIX) || key.startsWith(KCRAW_PREFIX) || key.startsWith(KCKEY_PREFIX));
+        Map<String, String> filteredEnv = new HashMap<>();
+        for (Iterator<Map.Entry<String, String>> iterator = env.entrySet().iterator(); iterator.hasNext();) {
+            var entry = iterator.next();
+            String key = entry.getKey();
+            if (!key.startsWith(KC_PREFIX) && !key.startsWith(KCRAW_PREFIX) && !key.startsWith(KCKEY_PREFIX)) {
+                iterator.remove();
+                filteredEnv.put(key, entry.getValue());
+            }
+        }
         EnvConfigSource quarkusEnv = new EnvConfigSource(filteredEnv, EnvConfigSource.ORDINAL);
 
         return List.of(new KcEnvConfigSource(env), quarkusEnv);
